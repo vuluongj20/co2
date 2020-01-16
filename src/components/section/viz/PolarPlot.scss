@@ -65,12 +65,6 @@
   .ticks .tick .text {
     fill: var(--light);
   }
-  .r.tick {
-    width: 2em;
-    height: 2em;
-    padding: 0.4em;
-    fill: #fff;
-  }
 
   /* Grid lines */
   .grid>.domain {
@@ -94,7 +88,7 @@
   }
 
   .data-line {
-    stroke: var(--dark);
+    // stroke: var(--dark);
     stroke-width: 1;
     stroke-linejoin: round;
     fill: none;

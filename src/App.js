@@ -12,7 +12,9 @@ const styles = {
   normal: '#444455',
   light: '#888899',
   line: '#E8E8E9',
-  theme: '#4BA824'
+  theme: '#4BA824',
+  warm: '#EC5F13',
+  cool: '#AB13EC'
 },
 vizs = [
   {
@@ -114,7 +116,8 @@ class App extends Component {
             '--light': styles.light,
             '--line': styles.line,
             '--theme': styles.theme,
-            '--theme-readable': styles.themeReadable
+            '--warm': styles.warm,
+            '--cool': styles.cool
           }}>
           {/* <div className="hero-wrap">
             <h1 className="hero-text">

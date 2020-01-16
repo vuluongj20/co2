@@ -44,47 +44,47 @@ class PolarPlot extends Component {
       totalLength = null,
       minDate = min(data, function(d) {return d.date}),
       xDays = data.map(d => (d.date.getTime() - minDate.getTime())/(1000*60*60*24)),
-      xDaysParsed = xDays.map(d => Math.floor(d % 365.25))
+      xDaysParsed = xDays.map(d => Math.floor(d % 365.25)),
+      gradient = svg.append('defs').append('linearGradient')
+        .attr('id', 'polar-grad')
+        .attr('x1', '0%')
+        .attr('x2', '100%')
+        .attr('y1', '50%')
+        .attr('y2', '50%')
 
-      let rGrid = svg.append('g')
-        .attr('class', 'r grid')
+      gradient.append('stop')
+        .attr('offset', '0%')
+        .attr('style', 'stop-color: var(--warm); stop-opacity: 1')
+      gradient.append('stop')
+        .attr('offset', '100%')
+        .attr('style', 'stop-color: var(--cool); stop-opacity: 1')
+
+      let rAxis = svg.append('g')
+        .attr('class', 'r axis')
         .attr('transform', 'translate(' + radius + ' ' + radius + ')'),
-      rTicks = null,
       aAxis = svg.append('g')
         .attr('class', 'a axis')
         .attr('transform', 'translate(' + radius + ' ' + radius + ')')
 
-      rGrid.selectAll('circle')
+      rAxis.selectAll('circle')
         .data([...r.ticks(5), 320, 340, 360, 380])
         .enter()
         .append('circle')
           .attr('class', (d) => {return 'grid-circle' + ((d > 300 && d < 400) ? ' secondary' : '')})
           .attr('r', r)
-      rGrid.append('circle')
+      rAxis.append('circle')
         .attr('class', 'grid-circle')
         .attr('r', innerRadius)
 
-      svg.append('path').attr('class', 'data-line')
-
-      rTicks = svg.append('g')
-        .attr('class', 'r ticks')
-        .attr('transform', 'translate(' + radius + ' ' + radius + ')')
-      rTicks.selectAll('g')
+      rAxis.selectAll('g')
         .data([...r.ticks(5).slice(1), 320, 340, 360, 380])
         .enter()
-        .append('g')
+        .append('text')
         .attr('class', (d) => {return 'r tick' + ((d > 300 && d < 400) ? ' secondary' : '')})
-        .attr('dx', function(d) {return r(d)*Math.cos(-Math.PI/12)})
-        .attr('dy', function(d) {return r(d)*Math.sin(-Math.PI/12)})
-        .each((el) => {
-          select(el).append('rect')
-            .attr('class', 'r rect')
-          select(el).append('text')
-            .attr('class', 'r text')
-            .attr('text-anchor', 'middle')
-            .attr('alignment-baseline', 'central')
-            .text(function (d) {return d})
-        })
+        .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-Math.PI/12) + ' ' + r(d)*Math.sin(-Math.PI/12) + ')'})
+        .attr('text-anchor', 'middle')
+        .attr('alignment-baseline', 'central')
+        .text(function (d) {return d})
 
       aAxis.selectAll('line')
         .data(Array(6))
@@ -122,8 +122,11 @@ class PolarPlot extends Component {
             switch(target) {
               case 0: // Initial
                 // Main data line
-                grandDaddy.select('.data-line').datum(data.slice(0, 37))
+                svg.append('path').attr('class', 'data-line')
+                  .datum(data.slice(0, 37))
                   .attr('transform', 'translate(' + radius + ' ' + radius + ')')
+                  .attr('stroke', 'url(#polar-grad)')
+                  .attr('stroke-width', 1)
                   .attr('d', lineRadial()
                     .angle(function(_, index) { return a(xDaysParsed[index]) })
                     .radius(function(d) { return r(d.level) })
@@ -146,14 +149,12 @@ class PolarPlot extends Component {
                     .duration(800)
                     .ease(easeCubicIn)
                     .attr('r', 0)
-                console.log(grandDaddy.selectAll('.r.tick'))
                 grandDaddy.selectAll('.r.tick').filter((_, i) => {return i < 3})
                   .attr('class', 'r tick off')
                   .transition()
                     .duration(800)
                     .ease(easeCubicIn)
-                    .attr('dx', 0)
-                    .attr('dy', 0)
+                    .attr('transform', 0)
                 // Move 400 circle and tick
                 grandDaddy.selectAll('.grid-circle:nth-child(5)').transition()
                   .duration(800)
@@ -163,8 +164,7 @@ class PolarPlot extends Component {
                   .transition()
                     .duration(800)
                     .ease(easeCubicIn)
-                    .attr('dx', function(d) {return r(d)*Math.cos(-Math.PI/12)})
-                    .attr('dy', function(d) {return r(d)*Math.sin(-Math.PI/12)})
+                    .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-Math.PI/12) + ' ' + r(d)*Math.sin(-Math.PI/12) + ')'})
                 // Add new circles and ticks
                 grandDaddy.selectAll('.grid-circle.secondary').attr('class', 'grid-circle secondary on').transition()
                   .duration(800)
@@ -173,8 +173,7 @@ class PolarPlot extends Component {
                 grandDaddy.selectAll('.r.tick.secondary').attr('class', 'r tick secondary on').transition()
                   .duration(800)
                   .ease(easeCubicIn)
-                  .attr('dx', function(d) {return r(d)*Math.cos(-Math.PI/12)})
-                  .attr('dy', function(d) {return r(d)*Math.sin(-Math.PI/12)})
+                  .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-Math.PI/12) + ' ' + r(d)*Math.sin(-Math.PI/12) + ')'})
 
                 grandDaddy.select('.data-line')
                 .transition()
