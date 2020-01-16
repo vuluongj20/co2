@@ -56,10 +56,20 @@
   }
 
   /* Axes */
-  .axis .tick {
+  .axis .tick, .ticks .tick {
     font-size: 0.8em;
     position: relative;
     fill: var(--light);
+    transition: opacity var(--ease-in-cubic) 800ms;
+  }
+  .ticks .tick .text {
+    fill: var(--light);
+  }
+  .r.tick {
+    width: 2em;
+    height: 2em;
+    padding: 0.4em;
+    fill: #fff;
   }
 
   /* Grid lines */
@@ -70,11 +80,13 @@
     fill: none;
     stroke: var(--line);
     stroke-width: 1;
+    transition: opacity var(--ease-in-cubic) 800ms;
   }
   .grid-circle.secondary,
-  .r.tick.secondary {
+  .r.tick.secondary,
+  .grid-circle.off,
+  .r.tick.off {
     opacity: 0;
-    transition: opacity var(--ease-cubic) 800ms;
   }
   .grid-circle.secondary.on,
   .r.tick.secondary.on {
