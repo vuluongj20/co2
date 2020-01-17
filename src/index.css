@@ -80,6 +80,7 @@ h1, h2 {
   font-weight: 900;
   line-height: 1.2;
   margin: 0.2em 0;
+  color: var(--dark);
 }
 h1 {
   font-size: 16em;
@@ -92,6 +93,7 @@ p, button, g, text {
   font-family: 'Roboto Mono', 'Andale Mono', 'Lucida Sans', monospace;
   font-weight: 500;
   line-height: 1.4;
+  color: var(--normal);
 }
 svg {
   overflow: visible;

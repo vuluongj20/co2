@@ -47,10 +47,29 @@ class PolarPlot extends Component {
       xDaysParsed = xDays.map(d => Math.floor(d % 365.25)),
       gradient = svg.append('defs').append('linearGradient')
         .attr('id', 'polar-grad')
-        .attr('x1', '0%')
-        .attr('x2', '100%')
-        .attr('y1', '50%')
-        .attr('y2', '50%')
+        .attr('x1', '30%')
+        .attr('x2', '70%')
+        .attr('y1', '70%')
+        .attr('y2', '30%'),
+      // polarToCartesian & describeArc from wdebeaum, @stackoverflow: https://stackoverflow.com/a/5737245
+      polarToCartesian = function(centerX, centerY, radius, angleInDegrees) {
+        let angleInRadians = (angleInDegrees-90) * Math.PI / 180.0
+        return {
+          x: centerX + (radius * Math.cos(angleInRadians)),
+          y: centerY + (radius * Math.sin(angleInRadians))
+        }
+      },
+      describeArc = function(x, y, radius, startAngle, endAngle){
+        let start = polarToCartesian(x, y, radius, endAngle)
+        let end = polarToCartesian(x, y, radius, startAngle)
+        let largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1"
+        let d = [
+            'L', start.x, start.y,
+            'A', radius, radius, 0, largeArcFlag, 0, end.x, end.y,
+            'Z'
+        ].join(' ')
+        return d
+      }
 
       gradient.append('stop')
         .attr('offset', '0%')
@@ -141,20 +160,20 @@ class PolarPlot extends Component {
                     .attr('stroke-dashoffset', 0)
                 break
               case 1: // Linear
-                r.domain(extent(data, data => {return data.level}))
+                r.domain(extent(data, data => {return data.level})).nice()
                 // Remove unneeded circles and ticks
                 grandDaddy.selectAll('.grid-circle').filter((_, i) => {return i < 4})
                   .attr('class', 'grid-circle off')
                   .transition()
-                    .duration(800)
+                    .duration(1200)
                     .ease(easeCubicIn)
                     .attr('r', 0)
                 grandDaddy.selectAll('.r.tick').filter((_, i) => {return i < 3})
                   .attr('class', 'r tick off')
                   .transition()
-                    .duration(800)
+                    .duration(1200)
                     .ease(easeCubicIn)
-                    .attr('transform', 0)
+                    .attr('transform', 'translate(0 0)')
                 // Move 400 circle and tick
                 grandDaddy.selectAll('.grid-circle:nth-child(5)').transition()
                   .duration(800)
@@ -198,55 +217,32 @@ class PolarPlot extends Component {
                           .ease(easeCubicOut)
                           .attr('stroke-dashoffset', 0)
                     })
-                // let regLine = svg.append('path')
-                //   .datum(data)
-                //   .attr('class', 'reg-line')
-                //   .attr('d', line()
-                //     .x(function(d) { return x(d.date) + margin.left })
-                //     .y(function(d, i) {return y(yReg[i]) + margin.top })
-                // ),
-                // regLineLabel = svg.append('g')
-                //   .attr('class', 'reg-line-label')
-                //   .attr('transform',
-                //     'translate('
-                //     + (x(data[Math.ceil(data.length*0.52)]['date']) + margin.left + 60)
-                //     + ', '
-                //     + (y(yReg[Math.ceil(yReg.length*0.52)]) + margin.top + 20)
-                //     + ')'
-                //   )
-                // grandDaddy.select('.bottom-axis').raise()
-                // regLineLabel.style('opacity', 0)
-                //   .transition()
-                //     .duration(720)
-                //     .ease(easeQuad)
-                //     .style('opacity', 1)
-                // regLineLabel.append('rect')
-                //   .attr('class', 'reg-line-label-rect linear')
-                //   .attr('rx', 4)
-                //   .attr('ry', 4)
-                //   .style('width', '4.6em')
-                // let regLineLabelText = regLineLabel.append('text')
-                //     .attr('class', 'reg-line-label-text')
-                // regLineLabelText.append('tspan')
-                //     .attr('class', 'linear span')
-                //     .text('y = αx')
-                // regLineLength = regLine.node().getTotalLength()
-                // regLine.attr("stroke-dasharray", regLineLength + " " + regLineLength)
-                //   .attr("stroke-dashoffset", regLineLength)
-                //   .transition()
-                //     .duration(800)
-                //     .ease(easeCubicOut)
-                //     .attr('stroke-dashoffset', 0)
-                // grandDaddy.select('.data-line').attr('class', 'data-line faded')
-                // grandDaddy.selectAll('.reg-line-label-text>tspan:not(.linear)')
-                //   .each(function(d) {
-                //     let currentSpan = select(this)
-                //     if (!currentSpan.node().classList.contains('off')) {
-                //       currentSpan.node().classList.add('off')
-                //     }
-                //   })
                 break
-              // case 2: // Quadratic
+              case 2: // Quadratic
+                let winterStretch = svg.append('path')
+                  .attr('class', 'winter stretch')
+                  .datum(data.slice(3112, 3126))
+                  .attr('transform', 'translate(' + radius + ' ' + radius + ')')
+                  .attr('d', (data) => {
+                    let line = lineRadial()
+                    .angle(function(_, index) { return a(xDaysParsed[index+3112]) })
+                    .radius(function(d) { return r(d.level) })
+                    .curve(curveBasis)
+                    , shell = describeArc(0, 0, innerRadius, 0, 90)
+                    return line(data) + shell}
+                  ),
+                  summerStretch = svg.append('path')
+                    .attr('class', 'summer stretch')
+                    .datum(data.slice(3086, 3100))
+                    .attr('transform', 'translate(' + radius + ' ' + radius + ')')
+                    .attr('d', (data) => {
+                      let line = lineRadial()
+                      .angle(function(_, index) { return a(xDaysParsed[index+3086]) })
+                      .radius(function(d) { return r(d.level) })
+                      .curve(curveBasis)
+                      , shell = describeArc(0, 0, innerRadius, 180, 270)
+                      return line(data) + shell}
+                    )
               //   yReg = xDays.map(d => this.props.content[2].params[0] + this.props.content[2].params[1]*d + this.props.content[2].params[2]*d**2)
               //   grandDaddy.select('.reg-line').transition()
               //     .duration(800)
@@ -335,7 +331,6 @@ class PolarPlot extends Component {
             newText.classList.add('on-reverse')
           }
           let decrement = (target) => {
-            console.log(target)
             switch(target) {
               // case -1:
               //   let dataLineLength = grandDaddy.select('.data-line').node().getTotalLength()
@@ -423,7 +418,6 @@ class PolarPlot extends Component {
           }
           for (let i = from; i > to; i--) {
             let prevText = this.vizRef.current.querySelector('.viz-des-text:nth-child(' + (i + 1) + ')')
-            console.log('hey')
             decrement(i - 1)
             if (prevText) {
               prevText.classList.remove('on')
@@ -460,7 +454,6 @@ class PolarPlot extends Component {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             let index = entry.target.dataset.index
-            console.log(index)
             if (!this.state.vizCreated) {
               this.createViz(this.props.data)
             }

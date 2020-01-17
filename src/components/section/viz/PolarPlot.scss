@@ -94,41 +94,16 @@
     fill: none;
     transition: stroke 600ms cubic-bezier(0.215, 0.61, 0.355, 1);
   }
-  .data-line.faded {
-    stroke: var(--line);
+
+  .stretch {
+    stroke: var(--normal);
   }
-  .reg-line {
-    stroke: var(--theme);
-    stroke-width: 2;
-    stroke-linejoin: round;
-    fill: none;
+  .winter.stretch {
+    fill: var(--cool);
+    opacity: 0.2;
   }
-  .reg-line-label-text {
-    position: absolute;
-    transform: translate(0.9em, 1.27em);
-    font-weight: 700;
-    font-style: italic;
-    font-size: 0.9em;
-  }
-  .reg-line-label-text>.span {
-    fill: var(--dark);
-    transition: fill 800ms var(ease-out-cubic);
-  }
-  .reg-line-label-text>.span.off {
-    fill: var(--light);
-  }
-  .reg-line-label-rect {
-    height: 1.8em;
-    fill: var(--background);
-    stroke: var(--line);
-  }
-  .reg-line-label-rect.linear {
-    width: 4.6em;
-  }
-  .reg-line-label-rect.quadratic {
-    width: 7.6em;
-  }
-  .reg-line-label-rect.cosine {
-    width: 15.6em;
+  .summer.stretch {
+    fill: var(--warm);
+    opacity: 0.2;
   }
 }
