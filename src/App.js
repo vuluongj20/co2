@@ -6,11 +6,12 @@ import Section from './components/section/Section';
 
 const styles = {
   background: '#FFFFFF',
-  invertedBackground: '#060608',
-  dark: '#121214',
+  invertedBackground: '#08080A',
+  dark: '#333334',
   invertedDark: '#FFFFFF',
-  normal: '#444455',
-  light: '#888899',
+  normal: '#555556',
+  invertedNormal: '#DDDDDD',
+  light: '#99999A',
   line: '#E8E8E9',
   theme: '#4BA824',
   warm: '#EC5F13',
@@ -19,8 +20,9 @@ const styles = {
 vizs = [
   {
     key: 'line-chart',
+    height: '640vh',
     text: {
-      header: ['A sharp', 'increase.'],
+      header: ['A SHARP', 'INCREASE.'],
       des: [
         [
           {
@@ -72,6 +74,35 @@ vizs = [
           -0.554076698]
       }
     ]
+  },
+  {
+    key: 'polar-plot',
+    height: '480vh',
+    text: {
+      header: ['ROUND THINGS', 'UP A BIT.'],
+      des: [
+        [
+          {
+            type: 'span',
+            content: "A polar plot is a better way of visualizing this. It is highly effectve for datasets with consistent patterns (in our case that's the seasonal fluctuations)."
+          }
+        ]
+      ]
+    },
+    vizContent: [
+      {
+        state: 'one',
+        des: 'Each revolution corresponds to a full year.',
+      },
+      {
+        state: 'all',
+        des: 'The whole dataset looks like this. Notice how the rise in CO2 levels is expressed by a consistent trend outward.'
+      },
+      {
+        state: 'stretches',
+        des: 'The revolutions are not perfectly circular. The levels spike in winter months (blue) and valley in summer months (red).'
+      }
+    ]
   }
 ]
 
@@ -113,13 +144,14 @@ class App extends Component {
             '--dark': styles.dark,
             '--inverted-dark': styles.invertedDark,
             '--normal': styles.normal,
+            '--inverted-normal': styles.invertedNormal,
             '--light': styles.light,
             '--line': styles.line,
             '--theme': styles.theme,
             '--warm': styles.warm,
             '--cool': styles.cool
           }}>
-          {/* <div className="hero-wrap">
+          <div className="hero-wrap">
             <h1 className="hero-text">
               <span className="hero-span span-1">C</span>
               <span className="hero-span span-2">O</span>
@@ -128,7 +160,7 @@ class App extends Component {
             <p className="hero-des">
               An exploration into new formats for data visualization, with CO<sub>2</sub> measurements from the Mauna Loa Observatory in Hawaii.
             </p>
-          </div> */}
+          </div>
           {this.state.data && vizs.map((viz, index) => {
             return <Section key={index} data={this.state.data} content={viz} animationObserver={this.state.animationObserver}/>
           })}

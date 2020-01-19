@@ -1,7 +1,11 @@
+#App {
+  min-width: 320px;
+}
 /* Hero */
 .hero-wrap {
   width: 100%;
   height: 100vh;
+  min-height: 460px;
   background: var(--inverted-background);
   display: flex;
   flex-direction: column;
@@ -9,10 +13,10 @@
   justify-content: center;
 }
 .hero-text {
-  color: var(--background);
+  color: var(--inverted-dark);
   text-align: center;
-  width: 70%;
-  margin-bottom: 0em;
+  width: 80%;
+  margin: 0em;
 }
 .hero-span {
   opacity: 0;
@@ -31,8 +35,8 @@
     blur 2.4s var(--ease-out-cubic) forwards;
 }
 .hero-des {
-  color: var(--background);
-  width: 70%;
+  color: var(--inverted-normal);
+  width: 80%;
   max-width: 38em;
   text-align: center;
   opacity: 0;

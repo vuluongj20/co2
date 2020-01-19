@@ -6,8 +6,6 @@ import { select,
   min,
   lineRadial,
   curveBasis,
-  easeQuad,
-  easeQuadOut,
   easeCubic,
   easeCubicIn,
   easeCubicOut
@@ -25,14 +23,18 @@ class PolarPlot extends Component {
     this.vizRef = React.createRef()
   }
   createViz(data) {
-    let margin = 80,
-      radius = Math.min(window.innerWidth - 440, window.innerHeight - 200)/2,
+    let margin = 40,
+      radius = window.innerWidth/window.innerHeight > 1.2 ?
+        (window.innerWidth > 900 ?
+          Math.min(window.innerWidth*0.8 - 320, window.innerHeight*0.9, 1000)/2
+          : Math.min(window.innerWidth*0.8 - 180, window.innerHeight*0.9, 1000)/2)
+        : Math.min(window.innerWidth*0.8, window.innerHeight*0.9 - 250, 1000)/2,
       innerRadius = radius - margin,
       grandDaddy = select('#polar-plot'),
       svg = grandDaddy.select('.viz-svg-wrap')
       .append('svg')
-        .attr('width', radius*2)
-        .attr('height', radius*2)
+        .attr("preserveAspectRatio", "xMidYMid meet")
+        .attr("viewBox", '0 0 ' + radius*2 + ' ' + radius*2)
         .attr('class', 'viz'),
       a = scaleLinear()
       .domain([0, 365.25])
@@ -45,7 +47,8 @@ class PolarPlot extends Component {
       minDate = min(data, function(d) {return d.date}),
       xDays = data.map(d => (d.date.getTime() - minDate.getTime())/(1000*60*60*24)),
       xDaysParsed = xDays.map(d => Math.floor(d % 365.25)),
-      gradient = svg.append('defs').append('linearGradient')
+      defs = svg.append('defs'),
+      gradient = defs.append('linearGradient')
         .attr('id', 'polar-grad')
         .attr('x1', '30%')
         .attr('x2', '70%')
@@ -69,7 +72,27 @@ class PolarPlot extends Component {
             'Z'
         ].join(' ')
         return d
-      }
+      },
+      strokeWidth = radius/200
+
+      grandDaddy.select('.viz-divider').attr('class', 'viz-divider on')
+
+      defs.append('clipPath')
+        .attr('id', 'winter-polar-clip')
+        .append('rect')
+          .attr('x', 0)
+          .attr('y', -1)
+          .attr('width', '100%')
+          .attr('height', '101%')
+          .attr('transform', 'rotate(-180)')
+      defs.append('clipPath')
+        .attr('id', 'summer-polar-clip')
+        .append('rect')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('width', '100%')
+          .attr('height', '100%')
+          .attr('transform', 'rotate(0)')
 
       gradient.append('stop')
         .attr('offset', '0%')
@@ -90,10 +113,26 @@ class PolarPlot extends Component {
         .enter()
         .append('circle')
           .attr('class', (d) => {return 'grid-circle' + ((d > 300 && d < 400) ? ' secondary' : '')})
+          .attr('stroke-width', strokeWidth/2)
+          .attr('transform', 'rotate(-90)')
           .attr('r', r)
+          .attr("stroke-dasharray", (d) => {return 2*Math.PI*r(d) + " " + 2*Math.PI*r(d)})
+            .attr("stroke-dashoffset", (d) => {return 2*Math.PI*r(d)})
+            .transition()
+              .duration(800)
+              .ease(easeCubic)
+              .attr('stroke-dashoffset', 0)
       rAxis.append('circle')
         .attr('class', 'grid-circle')
+        .attr('stroke-width', strokeWidth/2)
+        .attr('transform', 'rotate(-90)')
         .attr('r', innerRadius)
+        .attr("stroke-dasharray", 2*Math.PI*innerRadius + " " + 2*Math.PI*innerRadius)
+          .attr("stroke-dashoffset", 2*Math.PI*innerRadius)
+          .transition()
+            .duration(800)
+            .ease(easeCubic)
+            .attr('stroke-dashoffset', 0)
 
       rAxis.selectAll('g')
         .data([...r.ticks(5).slice(1), 320, 340, 360, 380])
@@ -110,11 +149,24 @@ class PolarPlot extends Component {
         .enter()
         .append('line')
           .attr('class', 'grid-line')
+          .attr('stroke-width', strokeWidth/2)
           .attr('x1', 0)
           .attr('x2', 0)
           .attr('y1', -innerRadius)
           .attr('y2', innerRadius)
           .attr('transform', function(_, i) {return 'rotate(' + (30*i) + ')'})
+          .attr("stroke-dasharray", 2*innerRadius + " " + 2*innerRadius)
+            .attr("stroke-dashoffset", 2*innerRadius)
+            .transition()
+              .duration(800)
+              .ease(easeCubic)
+              .attr('stroke-dashoffset', (_, i) => {
+                if (i%2 === 0) {
+                  return 0
+                } else {
+                  return 4*innerRadius
+                }
+              })
 
       aAxis.selectAll('text')
         .data(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
@@ -130,22 +182,20 @@ class PolarPlot extends Component {
     this.setState({
       vizCreated: true,
       updateFunc: (to, from) => {
-        let regLineLength = null,
-          yReg = null,
-          newText = to !== -1 ? this.vizRef.current.querySelector('.viz-des-text:nth-child(' + (to + 1) + ')') : null
+        let newText = to !== -1 ? this.vizRef.current.querySelector('.viz-des-text:nth-child(' + (to + 1) + ')') : null
         if (to > from) {
           if (newText) {
             newText.classList.add('on')
           }
           let increment = (target) => {
             switch(target) {
-              case 0: // Initial
+              case 0: // One
                 // Main data line
                 svg.append('path').attr('class', 'data-line')
                   .datum(data.slice(0, 37))
                   .attr('transform', 'translate(' + radius + ' ' + radius + ')')
                   .attr('stroke', 'url(#polar-grad)')
-                  .attr('stroke-width', 1)
+                  .attr('stroke-width', strokeWidth)
                   .attr('d', lineRadial()
                     .angle(function(_, index) { return a(xDaysParsed[index]) })
                     .radius(function(d) { return r(d.level) })
@@ -159,7 +209,7 @@ class PolarPlot extends Component {
                     .ease(easeCubic)
                     .attr('stroke-dashoffset', 0)
                 break
-              case 1: // Linear
+              case 1: // All
                 r.domain(extent(data, data => {return data.level})).nice()
                 // Remove unneeded circles and ticks
                 grandDaddy.selectAll('.grid-circle').filter((_, i) => {return i < 4})
@@ -213,16 +263,18 @@ class PolarPlot extends Component {
                       dataLine.attr("stroke-dasharray", newTotalLength + " " + newTotalLength)
                         .attr("stroke-dashoffset", newTotalLength)
                         .transition()
-                          .duration(1200)
+                          .duration(800)
                           .ease(easeCubicOut)
                           .attr('stroke-dashoffset', 0)
                     })
                 break
-              case 2: // Quadratic
-                let winterStretch = svg.append('path')
+              case 2: // Stretches
+                svg.append('path')
                   .attr('class', 'winter stretch')
+                  .attr('clip-path', 'url(#winter-polar-clip)')
                   .datum(data.slice(3112, 3126))
                   .attr('transform', 'translate(' + radius + ' ' + radius + ')')
+                  .attr('stroke-width', strokeWidth/2)
                   .attr('d', (data) => {
                     let line = lineRadial()
                     .angle(function(_, index) { return a(xDaysParsed[index+3112]) })
@@ -230,91 +282,31 @@ class PolarPlot extends Component {
                     .curve(curveBasis)
                     , shell = describeArc(0, 0, innerRadius, 0, 90)
                     return line(data) + shell}
-                  ),
-                  summerStretch = svg.append('path')
-                    .attr('class', 'summer stretch')
-                    .datum(data.slice(3086, 3100))
-                    .attr('transform', 'translate(' + radius + ' ' + radius + ')')
-                    .attr('d', (data) => {
-                      let line = lineRadial()
-                      .angle(function(_, index) { return a(xDaysParsed[index+3086]) })
-                      .radius(function(d) { return r(d.level) })
-                      .curve(curveBasis)
-                      , shell = describeArc(0, 0, innerRadius, 180, 270)
-                      return line(data) + shell}
-                    )
-              //   yReg = xDays.map(d => this.props.content[2].params[0] + this.props.content[2].params[1]*d + this.props.content[2].params[2]*d**2)
-              //   grandDaddy.select('.reg-line').transition()
-              //     .duration(800)
-              //     .ease(easeCubicOut)
-              //     .attr('d', line()
-              //       .x(function(d) { return x(d.date) + margin.left })
-              //       .y(function(d, i) {return y(yReg[i]) + margin.top })
-              //     )
-              //   regLineLength = grandDaddy.select('.reg-line').node().getTotalLength()
-              //   grandDaddy.select('.reg-line').attr("stroke-dasharray", 0)
-              //     .attr('stroke-dashoffset', 0)
-              //   grandDaddy.select('.reg-line-label-rect')
-              //     .attr('class', 'reg-line-label-rect quadratic')
-              //     .transition()
-              //       .duration(600)
-              //       .ease(easeCubicOut)
-              //       .style('width', '7.7em')
-              //   grandDaddy.select('.reg-line-label-text').append('tspan')
-              //     .attr('class', 'quadratic span')
-              //     .text(' + βx\u00b2')
-              //     .style('opacity', 0)
-              //       .transition()
-              //         .duration(800)
-              //         .ease(easeQuad)
-              //         .style('opacity', 1)
-              //   grandDaddy.selectAll('.reg-line-label-text>tspan:not(.quadratic)')
-              //     .each(function(d) {
-              //       let currentSpan = select(this)
-              //       if (!currentSpan.node().classList.contains('off')) {
-              //         currentSpan.node().classList.add('off')
-              //       }
-              //     })
-              //   break
-              // case 3: // Cosine
-              //   yReg = xDays.map(d => this.props.content[3].params[0]
-              //     + this.props.content[3].params[1]*d
-              //     + this.props.content[3].params[2]*d**2
-              //     + this.props.content[3].params[3]*Math.cos(2*Math.PI*d/365.25 + this.props.content[3].params[4])
-              //   )
-              //   grandDaddy.select('.reg-line').attr("stroke-dasharray", regLineLength + " " + regLineLength)
-              //     .transition()
-              //       .duration(800)
-              //       .ease(easeCubicOut)
-              //       .attr('d', line()
-              //         .x(function(d) { return x(d.date) + margin.left })
-              //         .y(function(d, i) {return y(yReg[i]) + margin.top })
-              //     )
-              //   regLineLength = grandDaddy.select('.reg-line').node().getTotalLength()
-              //   grandDaddy.select('.reg-line').attr("stroke-dasharray", 0)
-              //     .attr('stroke-dashoffset', 0)
-              //   grandDaddy.select('.reg-line-label-rect')
-              //     .attr('class', 'reg-line-label-rect cosine')
-              //     .transition()
-              //       .duration(600)
-              //       .ease(easeCubicOut)
-              //       .style('width', '15.6em')
-              //   grandDaddy.select('.reg-line-label-text').append('tspan')
-              //     .attr('class', 'cosine span')
-              //     .text(' + cos(2πt + φ)')
-              //     .style('opacity', 0)
-              //       .transition()
-              //         .duration(800)
-              //         .ease(easeQuad)
-              //         .style('opacity', 1)
-              //   grandDaddy.selectAll('.reg-line-label-text>tspan:not(.cosine)')
-              //     .each(function(d) {
-              //       let currentSpan = select(this)
-              //       if (!currentSpan.node().classList.contains('off')) {
-              //         currentSpan.node().classList.add('off')
-              //       }
-              //     })
-              //   break
+                  )
+                svg.append('path')
+                  .attr('class', 'summer stretch')
+                  .attr('clip-path', 'url(#summer-polar-clip)')
+                  .datum(data.slice(3086, 3100))
+                  .attr('transform', 'translate(' + radius + ' ' + radius + ')')
+                  .attr('stroke-width', strokeWidth/2)
+                  .attr('d', (data) => {
+                    let line = lineRadial()
+                    .angle(function(_, index) { return a(xDaysParsed[index+3086]) })
+                    .radius(function(d) { return r(d.level) })
+                    .curve(curveBasis)
+                    , shell = describeArc(0, 0, innerRadius, 180, 270)
+                    return line(data) + shell}
+                  )
+
+                  grandDaddy.select('#winter-polar-clip rect').transition()
+                    .duration(800)
+                    .ease(easeCubic)
+                    .attr('transform', 'rotate(-90)')
+                  grandDaddy.select('#summer-polar-clip rect').transition()
+                    .duration(800)
+                    .ease(easeCubic)
+                    .attr('transform', 'rotate(90)')
+                break
               default:
             }
           }
@@ -332,87 +324,94 @@ class PolarPlot extends Component {
           }
           let decrement = (target) => {
             switch(target) {
-              // case -1:
-              //   let dataLineLength = grandDaddy.select('.data-line').node().getTotalLength()
-              //   grandDaddy.select('.data-line').attr('stroke-dashoffset', 0)
-              //     .transition()
-              //       .duration(800)
-              //       .ease(easeCubicOut)
-              //       .attr('stroke-dashoffset', -dataLineLength)
-              //       .remove()
-              //   break
-              // case 0: // Initial
-              //   regLineLength = grandDaddy.select('.reg-line').node().getTotalLength()
-              //   grandDaddy.select('.reg-line').attr('stroke-dashoffset', 0)
-              //     .transition()
-              //       .duration(800)
-              //       .ease(easeCubicOut)
-              //       .attr('stroke-dashoffset', -regLineLength)
-              //       .remove()
-              //   grandDaddy.select('.data-line').attr('class', 'data-line')
-              //   grandDaddy.select('.reg-line-label').style('opacity', 1)
-              //     .transition()
-              //       .duration(800)
-              //       .ease(easeCubicOut)
-              //       .style('opacity', 0)
-              //       .remove()
-              //   break
-              // case 1: // Linear
-              //   yReg = xDays.map(d => this.props.content[1].params[0] + this.props.content[1].params[1]*d)
-              //   grandDaddy.select('.reg-line').transition()
-              //     .duration(800)
-              //     .ease(easeCubicOut)
-              //     .attr('d', line()
-              //       .x(function(d) { return x(d.date) + margin.left })
-              //       .y(function(d, i) {return y(yReg[i]) + margin.top })
-              //   )
-              //   regLineLength = grandDaddy.select('.reg-line').node().getTotalLength()
-              //   grandDaddy.select('.reg-line').attr("stroke-dasharray", regLineLength + " " + regLineLength)
-              //   grandDaddy.select('.reg-line-label-text>.quadratic.span').style('opacity', 1)
-              //     .transition()
-              //       .duration(320)
-              //       .ease(easeCubicOut)
-              //       .style('opacity', 0)
-              //       .remove()
-              //   grandDaddy.select('.reg-line-label-rect').attr('class', 'reg-line-label-rect linear')
-              //     .transition()
-              //       .duration(600)
-              //       .ease(easeCubicOut)
-              //       .style('width', '4.6em')
-              //   setTimeout(() => {
-              //     grandDaddy.select('.reg-line-label-rect').attr('class', 'reg-line-label-rect linear')
-              //   })
-              //   grandDaddy.select('.reg-line-label-text>.linear.span').attr('class', 'linear span on')
-              //   break
-              // case 2: // Quadratic
-              //   yReg = xDays.map(d => this.props.content[2].params[0]
-              //     + this.props.content[2].params[1]*d
-              //     + this.props.content[2].params[2]*d**2)
-              //   grandDaddy.select('.reg-line').transition()
-              //     .duration(800)
-              //     .ease(easeCubicOut)
-              //     .attr('d', line()
-              //       .x(function(d) { return x(d.date) + margin.left })
-              //       .y(function(d, i) {return y(yReg[i]) + margin.top })
-              //   )
-              //   regLineLength = grandDaddy.select('.reg-line').node().getTotalLength()
-              //   grandDaddy.select('.reg-line').attr("stroke-dasharray", regLineLength + " " + regLineLength)
-              //   grandDaddy.select('.reg-line-label-text>.cosine.span').style('opacity', 1)
-              //     .transition()
-              //       .duration(320)
-              //       .ease(easeCubicOut)
-              //       .style('opacity', 0)
-              //       .remove()
-              //   grandDaddy.select('.reg-line-label-rect').attr('class', 'reg-line-label-rect quadratic')
-              //     .transition()
-              //       .duration(600)
-              //       .ease(easeCubicOut)
-              //       .style('width', '7.7em')
-              //   setTimeout(() => {
-              //     grandDaddy.select('.reg-line-label-rect').attr('class', 'reg-line-label-rect quadratic')
-              //   })
-              //   grandDaddy.select('.reg-line-label-text>.quadratic.span').attr('class', 'quadratic span on')
-              //   break
+              case -1: // Init
+                let dataLine = grandDaddy.select('.data-line')
+                totalLength = dataLine.node().getTotalLength()
+
+                dataLine.attr("stroke-dasharray", totalLength + " " + totalLength)
+                  .attr("stroke-dashoffset", 0)
+                  .transition()
+                    .duration(800)
+                    .ease(easeCubic)
+                    .attr('stroke-dashoffset', totalLength)
+                    .remove()
+                break
+              case 0: // One
+                r.domain([0, max(data, (d, i) => {return d.level})]).nice()
+                // Remove unneeded circles and ticks
+                grandDaddy.selectAll('.grid-circle').filter((_, i) => {return i < 4})
+                  .attr('class', 'grid-circle')
+                  .transition()
+                    .duration(800)
+                    .ease(easeCubicIn)
+                    .attr('r', r)
+                grandDaddy.selectAll('.r.tick').filter((_, i) => {return i < 3})
+                  .attr('class', 'r tick')
+                  .transition()
+                    .duration(800)
+                    .ease(easeCubicIn)
+                    .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-Math.PI/12) + ' ' + r(d)*Math.sin(-Math.PI/12) + ')'})
+                // Move 400 circle and tick
+                grandDaddy.selectAll('.grid-circle:nth-child(5)').transition()
+                  .duration(800)
+                  .ease(easeCubicIn)
+                  .attr('r', r)
+                grandDaddy.selectAll('.r.tick:nth-child(4)')
+                  .transition()
+                    .duration(800)
+                    .ease(easeCubicIn)
+                    .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-Math.PI/12) + ' ' + r(d)*Math.sin(-Math.PI/12) + ')'})
+                // Add new circles and ticks
+                grandDaddy.selectAll('.grid-circle.secondary').attr('class', 'grid-circle secondary').transition()
+                  .duration(800)
+                  .ease(easeCubicIn)
+                  .attr('r', r)
+                grandDaddy.selectAll('.r.tick.secondary').attr('class', 'r tick secondary').transition()
+                  .duration(800)
+                  .ease(easeCubicIn)
+                  .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-Math.PI/12) + ' ' + r(d)*Math.sin(-Math.PI/12) + ')'})
+
+                grandDaddy.select('.data-line')
+                .datum(data.slice(0, 37))
+                .transition()
+                  .duration(400)
+                  .ease(easeCubicIn)
+                  .style('opacity', 0)
+                  .on('end', () => {
+                    let dataLine = grandDaddy.select('.data-line')
+                    .datum(data.slice(0, 37))
+                    .style('opacity', 1)
+                    .attr('d', lineRadial()
+                      .angle(function(_, index) { return a(xDaysParsed[index]) })
+                      .radius(function(d) { return r(d.level) })
+                      .curve(curveBasis)),
+                    newTotalLength = dataLine.node().getTotalLength()
+
+                    dataLine.attr("stroke-dasharray", newTotalLength + " " + newTotalLength)
+                      .attr("stroke-dashoffset", newTotalLength)
+                      .transition()
+                        .duration(800)
+                        .ease(easeCubic)
+                        .attr('stroke-dashoffset', 0)
+                  })
+                break
+              case 1: // All
+                grandDaddy.select('#winter-polar-clip rect').transition()
+                  .duration(800)
+                  .ease(easeCubic)
+                  .attr('transform', 'rotate(-180)')
+                grandDaddy.select('#summer-polar-clip rect').transition()
+                  .duration(800)
+                  .ease(easeCubic)
+                  .attr('transform', 'rotate(0)')
+
+                grandDaddy.select('.summer.stretch').transition()
+                  .delay(800)
+                  .remove()
+                grandDaddy.select('.winter.stretch').transition()
+                  .delay(800)
+                  .remove()
+                break
               default:
             }
           }
@@ -432,32 +431,57 @@ class PolarPlot extends Component {
     })
   }
   componentDidMount() {
-    this.createViz(this.props.data)
-    // let vizObserver = new IntersectionObserver(
-    //   (entries, observer) => {
-    //     if (entries[0].isIntersecting && !this.state.vizCreated) {
-    //       this.setState({
-    //         vizCreated: true
-    //       }, () => {
-    //         this.createViz(this.props.data)
-    //       })
-    //     }
-    //   },
-    //   {
-    //     rootMargin: '0 0 -70%',
-    //     threshold: 0
-    //   })
-    // vizObserver.observe(this.vizRef.current)
+    let vizObserver = new IntersectionObserver(
+      (entries, observer) => {
+        if (entries[0].isIntersecting && !this.state.vizCreated) {
+          this.setState({
+            vizCreated: true
+          }, () => {
+            this.createViz(this.props.data)
+            let resizeTimer
+            window.addEventListener('resize', () => {
+              clearTimeout(resizeTimer)
+              resizeTimer = setTimeout(() => {
+                select('#polar-plot .viz').remove()
+                this.createViz(this.props.data)
+                this.state.updateFunc(this.state.currentState, -1)
+              }, 400)
+            })
+          })
+        }
+      },
+      {
+        rootMargin: '-40%',
+        threshold: 0
+      })
+    vizObserver.observe(this.vizRef.current)
 
     let vizScrollObserver = new IntersectionObserver(
       (entries, observer) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            let index = entry.target.dataset.index
-            if (!this.state.vizCreated) {
-              this.createViz(this.props.data)
+            let index = Number(entry.target.dataset.index)
+            if (index > -1) {
+              if (!this.state.vizCreated) {
+                this.setState({
+                  vizCreated: true
+                }, () => {
+                  this.createViz(this.props.data)
+                  let resizeTimer
+                  window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimer)
+                    resizeTimer = setTimeout(() => {
+                      select('#polar-plot .viz').remove()
+                      this.createViz(this.props.data)
+                      this.state.updateFunc(this.state.currentState, -1)
+                    }, 400)
+                  })
+                })
+              }
+              this.state.updateFunc(index, this.state.currentState)
+            } else if (this.state.vizCreated) {
+              this.state.updateFunc(index, this.state.currentState)
             }
-            this.state.updateFunc(Number(index), this.state.currentState)
           }
         })
       },
@@ -465,7 +489,7 @@ class PolarPlot extends Component {
         threshold: 0
       }
     )
-    document.querySelectorAll('.viz-scroll-anchor').forEach(el => {
+    document.querySelectorAll('#polar-plot .viz-scroll-anchor').forEach(el => {
       vizScrollObserver.observe(el)
     })
   }
@@ -481,14 +505,16 @@ class PolarPlot extends Component {
           })}
           <div className="viz-scroll-dummy-anchor"></div>
         </div>
-        <div className="viz-wrap" id="line-chart">
-          <div className="viz-svg-wrap"></div>
+        <div className="viz-wrap">
           <div className="viz-des-wrap">
             {this.props.content.map((chunk, index) => {
               return (
                 <p className="viz-des-text" key={index}>{chunk.des}</p>
               )
             })}
+          </div>
+          <div className="viz-svg-outer-wrap">
+            <div className="viz-svg-wrap"></div>
           </div>
         </div>
       </div>

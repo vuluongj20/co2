@@ -64,35 +64,33 @@ body {
   margin: 0;
   font-family: 'Roboto Mono', 'Andale Mono', 'Lucida Sans', monospace;
   font-weight: 500;
-  font-size: 18px;
+  font-size: 15px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --ease-quad: cubic-bezier(0.455, 0.03, 0.515, 0.955);
-  --ease-in-cubic: cubic-bezier(0.55, 0.055, 0.675, 0.19);
   --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
   --ease-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
   --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 h1, h2 {
-  font-family: 'Monument', 'Source Sans Pro', 'Roboto', 'Arial', sans-serif;
+  font-family: 'Montserrat', 'Roboto', 'Arial', sans-serif;
   font-weight: 900;
   line-height: 1.2;
   margin: 0.2em 0;
   color: var(--dark);
 }
 h1 {
-  font-size: 16em;
+  font-size: 20em;
 }
 h2 {
-  font-size: 6em;
+  font-size: 4em;
 }
 p, button, g, text {
   font-size: inherit;
   font-family: 'Roboto Mono', 'Andale Mono', 'Lucida Sans', monospace;
-  font-weight: 500;
-  line-height: 1.4;
+  font-weight: 400;
+  line-height: 1.6;
   color: var(--normal);
 }
 svg {
@@ -109,7 +107,7 @@ code {
   margin: 0 auto;
 }
 .limited {
-  max-width: 720px;
+  max-width: 680px;
 }
 
 .animate {
@@ -143,4 +141,32 @@ code {
 .animate.blur.on {
   animation: opacity var(--animation-speed) var(--animation-delay) var(--ease-out-quad) forwards,
     blur calc(var(--animation-speed)/2) var(--animation-delay) var(--ease-out-quad) forwards;
+}
+
+@media only screen and (min-width: 1441px) {
+  body {
+    font-size: 17px;
+  }
+}
+@media only screen and (max-width: 1024px) {
+  body {
+    font-size: 14px;
+  }
+  h1 {
+    font-size: 16em;
+  }
+  h2 {
+    font-size: 3.2em;
+  }
+}
+@media only screen and (max-width: 768px) {
+  body {
+    font-size: 13px;
+  }
+  h1 {
+    font-size: 30vw;
+  }
+  h2 {
+    font-size: 2.4em;
+  }
 }

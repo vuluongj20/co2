@@ -6,8 +6,7 @@ import { select,
   min,
   axisBottom, axisRight,
   line,
-  easeQuad,
-  easeQuadOut,
+  easeCubic,
   easeCubicOut
  } from 'd3';
 
@@ -28,15 +27,21 @@ class LineChart extends Component {
       right: 60,
       bottom: 40,
       left: 0},
-      width = Math.min(window.innerWidth - 440, 1100),
-      height = Math.min(window.innerHeight - 200, width),
+      width = window.innerWidth/window.innerHeight > 1.2 ?
+        (window.innerWidth > 900 ?
+          Math.min(window.innerWidth*0.8 - 320, 1200)
+          : Math.min(window.innerWidth*0.8 - 180, 1200))
+        : Math.min(window.innerWidth*0.8, 1200),
+      height = window.innerWidth/window.innerHeight > 1.2 ?
+        Math.min(window.innerHeight*0.8, width, 1000)
+        : Math.min(window.innerHeight*0.9 - 250, width, 1000),
       innerWidth = width - margin.left - margin.right,
       innerHeight = height - margin.top - margin.bottom,
       grandDaddy = select('#line-chart'),
       svg = grandDaddy.select('.viz-svg-wrap')
       .append('svg')
-        .attr('width', width)
-        .attr('height', height)
+        .attr("preserveAspectRatio", "xMidYMid meet")
+        .attr("viewBox", '0 0 ' + width + ' ' + height)
         .attr('class', 'viz'),
       x = scaleTime()
       .domain(extent(data, (d, i) => {return d.date}))
@@ -48,7 +53,10 @@ class LineChart extends Component {
       .nice(),
       totalLength = null,
       minDate = min(data, function(d) {return d.date}),
-      xDays = data.map(d => Math.ceil((d.date.getTime() - minDate.getTime())/(1000*60*60*24)))
+      xDays = data.map(d => Math.ceil((d.date.getTime() - minDate.getTime())/(1000*60*60*24))),
+      strokeWidth = height/400
+
+    grandDaddy.select('.viz-divider').attr('class', 'viz-divider on')
 
     // Grid lines
     svg.append('g')
@@ -62,6 +70,7 @@ class LineChart extends Component {
     grandDaddy.selectAll('.y.grid>.tick').each(function(d, i) {
       select(this).attr("stroke-dasharray", height + " " + height)
         .attr("stroke-dashoffset", height)
+        .attr('stroke-width', strokeWidth/2)
         .transition()
           .duration(800)
           .ease(easeCubicOut)
@@ -84,6 +93,7 @@ class LineChart extends Component {
     grandDaddy.selectAll('.x.grid>.tick').each(function(d, i) {
       select(this).attr("stroke-dasharray", width + " " + width)
         .attr("stroke-dashoffset", width)
+        .attr('stroke-width', strokeWidth/2)
         .transition()
           .duration(800)
           .ease(easeCubicOut)
@@ -103,7 +113,7 @@ class LineChart extends Component {
       .style("opacity", 0)
       .transition()
         .duration(800)
-        .ease(easeQuad)
+        .ease(easeCubic)
         .style('opacity', 1)
       .call(axisBottom(x)
         .ticks(5)
@@ -115,7 +125,7 @@ class LineChart extends Component {
       .style("opacity", 0)
       .transition()
         .duration(800)
-        .ease(easeQuad)
+        .ease(easeCubic)
         .style('opacity', 1)
       .call(axisRight(y)
         .ticks(5)
@@ -128,9 +138,10 @@ class LineChart extends Component {
       .attr("x2", width)
       .attr("y2", height - margin.bottom)
       .style("opacity", 0)
+      .attr('stroke-width', strokeWidth)
       .transition()
         .duration(800)
-        .ease(easeQuadOut)
+        .ease(easeCubicOut)
         .style('opacity', 1)
 
     this.setState({
@@ -154,6 +165,7 @@ class LineChart extends Component {
                     .x(function(d) { return x(d.date) + margin.left })
                     .y(function(d) { return y(d.level) + margin.top })
                   )
+                  .attr('stroke-width', strokeWidth)
 
                 // Animate data line
                 totalLength = dataLine.node().getTotalLength()
@@ -161,7 +173,7 @@ class LineChart extends Component {
                   .attr("stroke-dashoffset", totalLength)
                   .transition()
                     .duration(800)
-                    .ease(easeCubicOut)
+                    .ease(easeCubic)
                     .attr('stroke-dashoffset', 0)
                 break
               case 1: // Linear
@@ -172,27 +184,33 @@ class LineChart extends Component {
                   .attr('d', line()
                     .x(function(d) { return x(d.date) + margin.left })
                     .y(function(d, i) {return y(yReg[i]) + margin.top })
-                ),
+                  )
+                  .attr('stroke-width', strokeWidth),
                 regLineLabel = svg.append('g')
                   .attr('class', 'reg-line-label')
                   .attr('transform',
                     'translate('
-                    + (x(data[Math.ceil(data.length*0.52)]['date']) + margin.left + 60)
+                    + (width > 540 ?
+                      (x(data[Math.ceil(data.length*0.52)]['date']) + margin.left + 64)
+                      : (x(data[Math.ceil(data.length*0.36)]['date']) + margin.left + 20))
                     + ', '
-                    + (y(yReg[Math.ceil(yReg.length*0.52)]) + margin.top + 20)
+                    + (width > 540 ?
+                      (y(yReg[Math.ceil(yReg.length*0.52)]) + margin.top + 20)
+                      : (y(yReg[Math.ceil(yReg.length*0.36)]) + margin.top + 20))
                     + ')'
                   )
                 grandDaddy.select('.bottom-axis').raise()
                 regLineLabel.style('opacity', 0)
                   .transition()
                     .duration(720)
-                    .ease(easeQuad)
+                    .ease(easeCubic)
                     .style('opacity', 1)
                 regLineLabel.append('rect')
                   .attr('class', 'reg-line-label-rect linear')
+                  .attr('stroke-width', strokeWidth/2)
                   .attr('rx', 4)
                   .attr('ry', 4)
-                  .style('width', '4.6em')
+                  .style('width', '4.7em')
                 let regLineLabelText = regLineLabel.append('text')
                     .attr('class', 'reg-line-label-text')
                 regLineLabelText.append('tspan')
@@ -231,14 +249,14 @@ class LineChart extends Component {
                   .transition()
                     .duration(600)
                     .ease(easeCubicOut)
-                    .style('width', '7.7em')
+                    .style('width', '7.8em')
                 grandDaddy.select('.reg-line-label-text').append('tspan')
                   .attr('class', 'quadratic span')
                   .text(' + βx\u00b2')
                   .style('opacity', 0)
                     .transition()
                       .duration(800)
-                      .ease(easeQuad)
+                      .ease(easeCubic)
                       .style('opacity', 1)
                 grandDaddy.selectAll('.reg-line-label-text>tspan:not(.quadratic)')
                   .each(function(d) {
@@ -270,14 +288,14 @@ class LineChart extends Component {
                   .transition()
                     .duration(600)
                     .ease(easeCubicOut)
-                    .style('width', '15.6em')
+                    .style('width', '15.8em')
                 grandDaddy.select('.reg-line-label-text').append('tspan')
                   .attr('class', 'cosine span')
                   .text(' + cos(2πt + φ)')
                   .style('opacity', 0)
                     .transition()
                       .duration(800)
-                      .ease(easeQuad)
+                      .ease(easeCubic)
                       .style('opacity', 1)
                 grandDaddy.selectAll('.reg-line-label-text>tspan:not(.cosine)')
                   .each(function(d) {
@@ -303,7 +321,6 @@ class LineChart extends Component {
             newText.classList.add('on-reverse')
           }
           let decrement = (target) => {
-            console.log(target)
             switch(target) {
               case -1:
                 let dataLineLength = grandDaddy.select('.data-line').node().getTotalLength()
@@ -351,7 +368,7 @@ class LineChart extends Component {
                   .transition()
                     .duration(600)
                     .ease(easeCubicOut)
-                    .style('width', '4.6em')
+                    .style('width', '4.7em')
                 setTimeout(() => {
                   grandDaddy.select('.reg-line-label-rect').attr('class', 'reg-line-label-rect linear')
                 })
@@ -380,7 +397,7 @@ class LineChart extends Component {
                   .transition()
                     .duration(600)
                     .ease(easeCubicOut)
-                    .style('width', '7.7em')
+                    .style('width', '7.8em')
                 setTimeout(() => {
                   grandDaddy.select('.reg-line-label-rect').attr('class', 'reg-line-label-rect quadratic')
                 })
@@ -412,11 +429,20 @@ class LineChart extends Component {
             vizCreated: true
           }, () => {
             this.createViz(this.props.data)
+            let resizeTimer
+            window.addEventListener('resize', () => {
+              clearTimeout(resizeTimer)
+              resizeTimer = setTimeout(() => {
+                select('#line-chart .viz').remove()
+                this.createViz(this.props.data)
+                this.state.updateFunc(this.state.currentState, -1)
+              }, 400)
+            })
           })
         }
       },
       {
-        rootMargin: '0 0 -70%',
+        rootMargin: '-40%',
         threshold: 0
       })
     vizObserver.observe(this.vizRef.current)
@@ -425,11 +451,28 @@ class LineChart extends Component {
       (entries, observer) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            let index = entry.target.dataset.index
-            if (!this.state.vizCreated) {
-              this.createViz(this.props.data)
+            let index = Number(entry.target.dataset.index)
+            if (index > -1) {
+              if (!this.state.vizCreated) {
+                this.setState({
+                  vizCreated: true
+                }, () => {
+                  this.createViz(this.props.data)
+                  let resizeTimer
+                  window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimer)
+                    resizeTimer = setTimeout(() => {
+                      select('#line-chart .viz').remove()
+                      this.createViz(this.props.data)
+                      this.state.updateFunc(this.state.currentState, -1)
+                    }, 400)
+                  })
+                })
+              }
+              this.state.updateFunc(index, this.state.currentState)
+            } else if (this.state.vizCreated) {
+              this.state.updateFunc(index, this.state.currentState)
             }
-            this.state.updateFunc(Number(index), this.state.currentState)
           }
         })
       },
@@ -437,7 +480,7 @@ class LineChart extends Component {
         threshold: 0
       }
     )
-    document.querySelectorAll('.viz-scroll-anchor').forEach(el => {
+    document.querySelectorAll('#line-chart .viz-scroll-anchor').forEach(el => {
       vizScrollObserver.observe(el)
     })
   }
@@ -453,8 +496,10 @@ class LineChart extends Component {
           })}
           <div className="viz-scroll-dummy-anchor"></div>
         </div>
-        <div className="viz-wrap" id="line-chart">
-          <div className="viz-svg-wrap"></div>
+        <div className="viz-wrap">
+          <div className="viz-svg-outer-wrap">
+            <div className="viz-svg-wrap"></div>
+          </div>
           <div className="viz-des-wrap">
             {this.props.content.map((chunk, index) => {
               return (

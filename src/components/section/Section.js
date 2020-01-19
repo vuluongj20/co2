@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './Section.css';
 
-// import LineChart from './viz/LineChart';
+import LineChart from './viz/LineChart';
 import PolarPlot from './viz/PolarPlot';
 
 class Section extends Component {
@@ -13,6 +13,8 @@ class Section extends Component {
   renderSwitch() {
     switch (this.props.content.key) {
       case 'line-chart':
+        return <LineChart data={this.props.data} content={this.props.content.vizContent} />
+      case 'polar-plot':
         return <PolarPlot data={this.props.data} content={this.props.content.vizContent} />
       default:
         return null
@@ -26,12 +28,12 @@ class Section extends Component {
   render() {
     let text = this.props.content.text
     return (
-      <div className="section-wrap" ref={this.sectionRef}>
-        {/* <div className="limit-box">
-          <h2 className="header limited">
-              {text.header[0] && <span className="header-span animate right">{text.header[0]}</span>}
-              {text.header[1] && <span className="header-span animate left">{text.header[1]}</span>}
-          </h2>
+      <div className="section-wrap" ref={this.sectionRef} style={{height: this.props.content.height}}>
+        <div className="limit-box">
+          <div className="header limited">
+              {text.header[0] && <h2 className="header-line animate right">{text.header[0]}</h2>}
+              {text.header[1] && <h2 className="header-line animate left">{text.header[1]}</h2>}
+          </div>
           {text.des.map((para, index) => {
             return (
               <p
@@ -54,7 +56,7 @@ class Section extends Component {
               </p>
             )
           })}
-        </div> */}
+        </div>
         {this.renderSwitch()}
       </div>
     )
