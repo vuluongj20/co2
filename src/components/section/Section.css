@@ -108,7 +108,8 @@
     height: auto;
   }
   .viz-des-wrap {
-    height: calc(6.4em + 10vh);
+    height: 6.4em;
+    margin-top: 5vh;
     width: 100%;
     padding: 0;
     border-left: none;

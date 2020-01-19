@@ -100,7 +100,7 @@ vizs = [
       },
       {
         state: 'stretches',
-        des: 'The revolutions are not perfectly circular. They stretch outward in winter months (blue) and inward in summer months (red). This is due to the annual seasonal fluctuations we saw above.'
+        des: 'The circles stretch outward in winter months (blue) and inward in summer months (red), due to the annual seasonal fluctuations we saw above.'
       }
     ]
   }
