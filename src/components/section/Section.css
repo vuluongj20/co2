@@ -69,6 +69,7 @@
   --animation-delay: 0ms;
   transform: translate3d(-50%, calc(-50% + 3.2em), 0);
   opacity: 0;
+  will-change: transform, opacity, filter;
 }
 .viz-des-text.on {
   animation: opacity var(--animation-speed) var(--animation-delay) var(--ease-out-quart) forwards,

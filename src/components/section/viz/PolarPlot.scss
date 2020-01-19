@@ -4,14 +4,13 @@
 
   .viz-svg-wrap {
     width: calc(80vw - 320px);
-    max-width: 1000px;
-    max-height: 1000px;
+    max-width: 90vh;
   }
   @media only screen and (max-aspect-ratio: 12/10) {
     .viz-svg-wrap {
       width: 90vw;
-      max-width: calc(90vh - 16.4vw) !important;
-      max-height: calc(90vh - 16.4vw);
+      max-width: calc(80vh - 90px) !important;
+      max-height: calc(80vh - 90px);
     }
   }
   @media only screen and (min-aspect-ratio: 18/17) and (max-height: 1100px) {

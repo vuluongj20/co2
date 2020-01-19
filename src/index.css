@@ -111,6 +111,7 @@ svg {
   --animation-speed: 1200ms;
   --animation-delay: 0ms;
   backface-visibility: hidden;
+  will-change: transform, opacity, filter;
 }
 .animate.left {
   opacity: 0;

@@ -25,9 +25,9 @@ class PolarPlot extends Component {
   createViz(data) {
     let radius = window.innerWidth/window.innerHeight > 1.2 ?
         (window.innerWidth > 900 ?
-          Math.min(window.innerWidth*0.8 - 320, window.innerHeight*0.9, 1000)/2
-          : Math.min(window.innerWidth*0.9 - 180, window.innerHeight*0.9, 1000)/2)
-        : Math.min(window.innerWidth*0.9, window.innerHeight*0.9 - 300, 1000)/2,
+          Math.min(window.innerWidth*0.8 - 320, window.innerHeight*0.9)/2
+          : Math.min(window.innerWidth*0.9 - 180, window.innerHeight*0.9)/2)
+        : Math.min(window.innerWidth*0.9, window.innerHeight*0.8 - 90)/2,
       margin = radius > 280 ? 40 : 20,
       innerRadius = radius - margin,
       grandDaddy = select('#polar-plot'),
