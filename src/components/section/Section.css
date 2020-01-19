@@ -1,5 +1,4 @@
 .section-wrap {
-  padding-top: 6em;
   display: flex;
   flex-direction: column;
   border-top: 1px solid var(--line);
@@ -9,6 +8,7 @@
   height: auto;
   width: 100%;
   overflow: hidden;
+  padding: 6em 0;
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
   box-sizing: border-box;
@@ -35,7 +35,6 @@
   position: sticky;
   top: -1px;
   border-top: solid 1px var(--line);
-  margin-top: 6em;
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
 }
@@ -120,11 +119,10 @@
   }
 }
 @media only screen and (max-width: 768px) {
-  .section-wrap {
-    padding-top: 4em;
-  }
-  .viz-wrap {
-    margin-top: 4em;
+  .section-content-wrap {
+    padding: 4em 0;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 }
 @media only screen and (max-width: 900px) and (min-aspect-ratio: 12/10) {
