@@ -22,19 +22,21 @@ class LineChart extends Component {
     this.vizRef = React.createRef()
   }
   createViz(data) {
-    let margin = {
-      top: 20,
-      right: 60,
-      bottom: 40,
-      left: 0},
-      width = window.innerWidth/window.innerHeight > 1.2 ?
+    let width = window.innerWidth/window.innerHeight > 1.2 ?
         (window.innerWidth > 900 ?
           Math.min(window.innerWidth*0.8 - 320, 1200)
-          : Math.min(window.innerWidth*0.8 - 180, 1200))
+          : Math.min(window.innerWidth*0.85 - 180, 1200))
         : Math.min(window.innerWidth*0.8, 1200),
       height = window.innerWidth/window.innerHeight > 1.2 ?
-        Math.min(window.innerHeight*0.8, width, 1000)
+        (window.innerWidth > 900 ?
+          Math.min(window.innerHeight*0.8, width, 1000)
+          : Math.min(window.innerHeight*0.85, width, 1000))
         : Math.min(window.innerHeight*0.9 - 300, width, 1000),
+      margin = {
+        top: 20,
+        right: width > 700 ? 60 : 36,
+        bottom: width > 700 ? 40 : 24,
+        left: 0},
       innerWidth = width - margin.left - margin.right,
       innerHeight = height - margin.top - margin.bottom,
       grandDaddy = select('#line-chart'),
@@ -118,7 +120,7 @@ class LineChart extends Component {
       .call(axisBottom(x)
         .ticks(5)
         .tickSize(0)
-        .tickPadding(24))
+        .tickPadding(width > 700 ? 24 : 12))
     svg.append('g')
       .attr('class', 'y axis')
       .attr('transform', 'translate(' + (innerWidth + margin.left) + ', ' + margin.top + ')')
@@ -130,7 +132,7 @@ class LineChart extends Component {
       .call(axisRight(y)
         .ticks(5)
         .tickSize(0)
-        .tickPadding(32))
+        .tickPadding(width > 700 ? 32 : 16))
     svg.append('line')
       .attr('class', 'bottom-axis')
       .attr("x1", 0)

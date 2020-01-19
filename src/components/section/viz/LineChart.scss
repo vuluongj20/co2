@@ -9,13 +9,13 @@
   }
   @media only screen and (max-aspect-ratio: 12/10) {
     .viz-svg-wrap {
-      width: 80vw;
+      width: 90vw;
       max-height: calc(90vh - 16.4vw);
     }
   }
   @media only screen and (max-width: 900px) and (min-aspect-ratio: 12/10) {
     .viz-svg-wrap {
-      width: calc(80vw - 180px);
+      width: calc(85vw - 180px);
     }
   }
   /* Axes */

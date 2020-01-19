@@ -23,12 +23,12 @@ class PolarPlot extends Component {
     this.vizRef = React.createRef()
   }
   createViz(data) {
-    let margin = 40,
-      radius = window.innerWidth/window.innerHeight > 1.2 ?
+    let radius = window.innerWidth/window.innerHeight > 1.2 ?
         (window.innerWidth > 900 ?
           Math.min(window.innerWidth*0.8 - 320, window.innerHeight*0.9, 1000)/2
-          : Math.min(window.innerWidth*0.8 - 180, window.innerHeight*0.9, 1000)/2)
-        : Math.min(window.innerWidth*0.8, window.innerHeight*0.9 - 300, 1000)/2,
+          : Math.min(window.innerWidth*0.9 - 180, window.innerHeight*0.9, 1000)/2)
+        : Math.min(window.innerWidth*0.9, window.innerHeight*0.9 - 300, 1000)/2,
+      margin = radius > 280 ? 40 : 20,
       innerRadius = radius - margin,
       grandDaddy = select('#polar-plot'),
       svg = grandDaddy.select('.viz-svg-wrap')
@@ -175,8 +175,8 @@ class PolarPlot extends Component {
           .attr('class', 'a tick')
           .attr('text-anchor', 'middle')
           .attr('alignment-baseline', 'central')
-          .attr('dx', function(_, i) {return (innerRadius + 24)*Math.cos((i/6 - 1/2)*Math.PI)})
-          .attr('dy', function(_, i) {return (innerRadius + 24)*Math.sin((i/6 - 1/2)*Math.PI)})
+          .attr('dx', function(_, i) {return (innerRadius + (radius > 280 ? 24 : 16))*Math.cos((i/6 - 1/2)*Math.PI)})
+          .attr('dy', function(_, i) {return (innerRadius + (radius > 280 ? 24 : 16))*Math.sin((i/6 - 1/2)*Math.PI)})
           .text(function (d) {return d})
 
     this.setState({

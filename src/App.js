@@ -35,7 +35,7 @@ vizs = [
           },
           {
             type: 'span',
-            content: ' levels (measured in ppm - parts per million) have changed since the first recordings in 1958. Inference for regression was done with PyStan. A basic linear regression proved insufficient, and slightly more complex terms were added to improve model performance!'
+            content: ' levels (measured in ppm - parts per million) have changed since the first recordings in 1958. Inference for regression was done with PyStan. A basic linear regression proved insufficient, and slightly more complex terms were added to improve model performance.'
           }
         ]
       ]
@@ -84,7 +84,7 @@ vizs = [
         [
           {
             type: 'span',
-            content: "Say hi to polar plots! They're circular plots that use polar coordinate systems. This makes them highly appropriate for time series with recurring patterns. See them in action below!"
+            content: "Say hi to polar plots! They're circular plots that use polar coordinate systems. This makes them highly appropriate for time series with recurring patterns."
           }
         ]
       ]

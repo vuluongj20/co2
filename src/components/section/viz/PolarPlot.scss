@@ -9,20 +9,20 @@
   }
   @media only screen and (max-aspect-ratio: 12/10) {
     .viz-svg-wrap {
-      width: 80vw;
+      width: 90vw;
       max-width: calc(90vh - 16.4vw) !important;
       max-height: calc(90vh - 16.4vw);
     }
   }
   @media only screen and (min-aspect-ratio: 18/17) and (max-height: 1100px) {
     .viz-svg-wrap {
-      max-width: 80vh;
+      max-width: 90vh;
     }
   }
   @media only screen and (max-width: 900px) and (min-aspect-ratio: 12/10) {
     .viz-svg-wrap {
-      max-width: 80vh;
-      width: calc(85vw - 180px);
+      max-width: 90vh;
+      width: calc(90vw - 180px);
     }
   }
   /* Axes */
