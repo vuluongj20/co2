@@ -29,33 +29,35 @@ class Section extends Component {
     let text = this.props.content.text
     return (
       <div className="section-wrap" ref={this.sectionRef} style={{height: this.props.content.height}}>
-        <div className="limit-box">
-          <div className="header limited">
-              {text.header[0] && <h2 className="header-line animate right">{text.header[0]}</h2>}
-              {text.header[1] && <h2 className="header-line animate left">{text.header[1]}</h2>}
+        <div className="section-content-wrap">
+          <div className="limit-box">
+            <div className="header limited">
+                {text.header[0] && <h2 className="header-line animate right">{text.header[0]}</h2>}
+                {text.header[1] && <h2 className="header-line animate left">{text.header[1]}</h2>}
+            </div>
+            {text.des.map((para, index) => {
+              return (
+                <p
+                  key={index}
+                  className="para limited animate blur"
+                  style={{
+                    '--animation-speed': '800ms',
+                    '--animation-delay': '440ms'
+                }}>
+                  {para.map((segment, index) => {
+                    switch(segment.type) {
+                      case 'span':
+                        return <span key={index}>{segment.content}</span>
+                      case 'sub':
+                        return <sub key={index}>{segment.content}</sub>
+                      default:
+                        return null
+                    }
+                  })}
+                </p>
+              )
+            })}
           </div>
-          {text.des.map((para, index) => {
-            return (
-              <p
-                key={index}
-                className="para limited animate blur"
-                style={{
-                  '--animation-speed': '800ms',
-                  '--animation-delay': '440ms'
-              }}>
-                {para.map((segment, index) => {
-                  switch(segment.type) {
-                    case 'span':
-                      return <span key={index}>{segment.content}</span>
-                    case 'sub':
-                      return <sub key={index}>{segment.content}</sub>
-                    default:
-                      return null
-                  }
-                })}
-              </p>
-            )
-          })}
         </div>
         {this.renderSwitch()}
       </div>
