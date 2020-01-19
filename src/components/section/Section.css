@@ -6,6 +6,9 @@
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
 }
+.section-content-wrap {
+  overflow: hidden;
+}
 .header-wrap {
   width: 100%;
   display: flex;
@@ -14,13 +17,10 @@
 }
 .header-line {
   margin-top: 0;
-  margin-bottom: 0.2em;
+  margin-bottom: 0.1em;
 }
 .header-line:last-child {
   margin-bottom: 0.4em;
-}
-.section-content-wrap .para {
-  margin: 0;
 }
 
 /* Common viz styles */
