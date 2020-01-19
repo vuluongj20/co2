@@ -1,6 +1,5 @@
 #App {
   min-width: 320px;
-  overflow: hidden;
   background: var(--background);
 }
 /* Hero */
