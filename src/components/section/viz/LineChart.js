@@ -26,12 +26,12 @@ class LineChart extends Component {
         (window.innerWidth > 900 ?
           Math.min(window.innerWidth*0.8 - 320, 1200)
           : Math.min(window.innerWidth*0.85 - 180, 1200))
-        : Math.min(window.innerWidth*0.8, 1200),
+        : Math.min(window.innerWidth*0.9, 1200),
       height = window.innerWidth/window.innerHeight > 1.2 ?
         (window.innerWidth > 900 ?
           Math.min(window.innerHeight*0.8, width, 1000)
           : Math.min(window.innerHeight*0.85, width, 1000))
-        : Math.min(window.innerHeight*0.9 - 300, width, 1000),
+        : Math.min(window.innerHeight*0.9 - 300, width*1.2, 1000),
       margin = {
         top: 20,
         right: width > 700 ? 60 : 36,
