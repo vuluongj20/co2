@@ -101,7 +101,6 @@ svg {
   width: 80%;
   max-width: 1200px;
   margin: 0 auto;
-  overflow: visible;
 }
 .limited {
   max-width: 680px;

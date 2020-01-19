@@ -1,5 +1,6 @@
 #App {
   min-width: 320px;
+  overflow-x: hidden;
   background: var(--background);
 }
 /* Hero */
@@ -19,7 +20,7 @@
   color: var(--inverted-dark);
   text-align: center;
   width: 80%;
-  margin: 0em;
+  margin-top: 0em;
 }
 .hero-span {
   opacity: 0;
@@ -50,7 +51,7 @@
 
 /* Meta */
 .meta-wrap {
-  padding: 6em 0;
+  padding: 6em 0 4.8em;
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
   display: flex;
@@ -62,13 +63,13 @@
 }
 .meta-inner-wrap {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   flex-wrap: wrap;
   width: 80%;
   max-width: 720px;
 }
 .meta-column {
-  margin: 0 2.8em;
+  margin: 0 2.8em 1.2em;
 }
 .meta-column-name {
   text-transform: uppercase;
@@ -120,7 +121,7 @@
 
 @media only screen and (max-width: 768px) {
   .meta-wrap {
-    padding: 4em 0;
+    padding: 4em 0 2.8em;
   }
   .end-note-wrap {
     padding: 4em 0;

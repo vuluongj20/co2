@@ -29,7 +29,6 @@ class Section extends Component {
     let text = this.props.content.text
     return (
       <div className="section-wrap" ref={this.sectionRef} style={{height: this.props.content.height}}>
-        <div className="section-content-wrap">
           <div className="limit-box">
             <div className="header limited">
                 {text.header[0] && <h2 className="header-line animate right">{text.header[0]}</h2>}
@@ -58,7 +57,6 @@ class Section extends Component {
               )
             })}
           </div>
-        </div>
         {this.renderSwitch()}
       </div>
     )
