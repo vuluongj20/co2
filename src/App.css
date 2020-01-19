@@ -14,6 +14,7 @@
   justify-content: center;
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
+  box-sizing: border-box;
 }
 .hero-text {
   color: var(--inverted-dark);

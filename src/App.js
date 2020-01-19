@@ -22,7 +22,7 @@ vizs = [
     key: 'line-chart',
     height: '500vh',
     text: {
-      header: ['NOT SO', 'LINEAR.'],
+      header: ['NOT SO LINEAR.', ''],
       des: [
         [
           {
