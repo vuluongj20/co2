@@ -34,7 +34,7 @@ class LineChart extends Component {
         : Math.min(window.innerWidth*0.8, 1200),
       height = window.innerWidth/window.innerHeight > 1.2 ?
         Math.min(window.innerHeight*0.8, width, 1000)
-        : Math.min(window.innerHeight*0.9 - 250, width, 1000),
+        : Math.min(window.innerHeight*0.9 - 300, width, 1000),
       innerWidth = width - margin.left - margin.right,
       innerHeight = height - margin.top - margin.bottom,
       grandDaddy = select('#line-chart'),
@@ -442,7 +442,7 @@ class LineChart extends Component {
         }
       },
       {
-        rootMargin: '-40%',
+        rootMargin: '-50%',
         threshold: 0
       })
     vizObserver.observe(this.vizRef.current)

@@ -2,7 +2,9 @@
   padding-top: 6em;
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid var(--line);
+  border-top: 1px solid var(--line);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 .header-wrap {
   width: 100%;

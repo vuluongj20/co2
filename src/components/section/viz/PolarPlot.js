@@ -28,7 +28,7 @@ class PolarPlot extends Component {
         (window.innerWidth > 900 ?
           Math.min(window.innerWidth*0.8 - 320, window.innerHeight*0.9, 1000)/2
           : Math.min(window.innerWidth*0.8 - 180, window.innerHeight*0.9, 1000)/2)
-        : Math.min(window.innerWidth*0.8, window.innerHeight*0.9 - 250, 1000)/2,
+        : Math.min(window.innerWidth*0.8, window.innerHeight*0.9 - 300, 1000)/2,
       innerRadius = radius - margin,
       grandDaddy = select('#polar-plot'),
       svg = grandDaddy.select('.viz-svg-wrap')
@@ -451,7 +451,7 @@ class PolarPlot extends Component {
         }
       },
       {
-        rootMargin: '-40%',
+        rootMargin: '-50%',
         threshold: 0
       })
     vizObserver.observe(this.vizRef.current)

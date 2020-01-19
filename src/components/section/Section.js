@@ -41,7 +41,7 @@ class Section extends Component {
                 className="para limited animate blur"
                 style={{
                   '--animation-speed': '800ms',
-                  '--animation-delay': '800ms'
+                  '--animation-delay': '440ms'
               }}>
                 {para.map((segment, index) => {
                   switch(segment.type) {

@@ -6,13 +6,13 @@ import Section from './components/section/Section';
 
 const styles = {
   background: '#FFFFFF',
-  invertedBackground: '#08080A',
-  dark: '#333334',
-  invertedDark: '#FFFFFF',
-  normal: '#555556',
-  invertedNormal: '#DDDDDD',
-  light: '#99999A',
-  line: '#E8E8E9',
+  invertedBackground: '#060608',
+  dark: '#222224',
+  invertedDark: '#F9F9FA',
+  normal: '#444445',
+  invertedNormal: '#CCCCCD',
+  light: '#888889',
+  line: '#E6E6E8',
   theme: '#4BA824',
   warm: '#EC5F13',
   cool: '#AB13EC'
@@ -20,9 +20,9 @@ const styles = {
 vizs = [
   {
     key: 'line-chart',
-    height: '640vh',
+    height: '500vh',
     text: {
-      header: ['A SHARP', 'INCREASE.'],
+      header: ['NOT SO', 'LINEAR.'],
       des: [
         [
           {
@@ -35,7 +35,7 @@ vizs = [
           },
           {
             type: 'span',
-            content: ' levels (measured in ppm - parts per million) has changed since the first recordings in 1980.'
+            content: ' levels (measured in ppm - parts per million) have changed since the first recordings in 1958. Inference for regression was done with PyStan. A basic linear regression proved insufficient, and slightly more complex terms were added to improve model performance!'
           }
         ]
       ]
@@ -77,14 +77,14 @@ vizs = [
   },
   {
     key: 'polar-plot',
-    height: '480vh',
+    height: '400vh',
     text: {
-      header: ['ROUND THINGS', 'UP A BIT.'],
+      header: ['ROUND AND', 'ROUND WE GO.'],
       des: [
         [
           {
             type: 'span',
-            content: "A polar plot is a better way of visualizing this. It is highly effectve for datasets with consistent patterns (in our case that's the seasonal fluctuations)."
+            content: "Say hi to polar plots! They're circular plots that use polar coordinate systems. This makes them highly appropriate for time series with recurring patterns. See them in action below!"
           }
         ]
       ]
@@ -100,11 +100,42 @@ vizs = [
       },
       {
         state: 'stretches',
-        des: 'The revolutions are not perfectly circular. The levels spike in winter months (blue) and valley in summer months (red).'
+        des: 'The revolutions are not perfectly circular. They stretch outward in winter months (blue) and inward in summer months (red). This is due to the annual seasonal fluctuations we saw above.'
       }
     ]
   }
-]
+],
+mainContent = {
+  meta: [
+    {
+      name: 'AUTHOR',
+      content: ['Vu Luong']
+    },
+    {
+      name: 'TOOLS/FRAMEWORKS',
+      content: ['PyStan', 'React', 'D3.js']
+    },
+    {
+      name: 'LINKS',
+      links: true,
+      content: [
+        {
+          name: 'Data Set',
+          link: 'https://www.esrl.noaa.gov/gmd/ccgg/trends/data.html'
+        },
+        {
+          name: 'Code for Stan Inference',
+          link: 'https://github.com/vuluongj20/misc/blob/master/CO2.ipynb'
+        },
+        {
+          name: 'Project Report',
+          link: 'data/Project Report.pdf'
+        }
+      ]
+    }
+  ],
+  endNote: "That's all for now. Cheers :)"
+}
 
 class App extends Component {
   constructor(props) {
@@ -128,13 +159,18 @@ class App extends Component {
             })
           },
           {
-            threshold: 1
+            threshold: 0.5
           }
         )
+      }, () => {
+        document.querySelectorAll('.parent.animate').forEach(el => {
+          this.state.animationObserver.observe(el)
+        })
       })
     })
   }
   render() {
+    document.body.style.background = styles.invertedBackground
     return (
       <div
         id="App"
@@ -158,12 +194,36 @@ class App extends Component {
               <sub className="hero-span span-3">2</sub>
             </h1>
             <p className="hero-des">
-              An exploration into new formats for data visualization, with CO<sub>2</sub> measurements from the Mauna Loa Observatory in Hawaii.
+              An exploration into data visualization, with carbon dioxide records from the Mauna Loa Observatory in Hawaii.
             </p>
+          </div>
+          <div className="meta-wrap">
+            <div className="meta-inner-wrap limited">
+              {mainContent.meta.map((column, index) => {
+                return (
+                  <div className="meta-column animate parent blur" key={index}>
+                    <p className="meta-column-name">{column.name}</p>
+                    {column.links ? (column.content.map((el, index) => {
+                      return <a className="meta-column-link" key={index} href={el.link}>{el.name}</a>
+                    }))
+                    : (column.content.map((el, index) => {
+                      return <p className="meta-column-el" key={index}>{el}</p>
+                    }))}
+                  </div>
+                )
+              })}
+            </div>
           </div>
           {this.state.data && vizs.map((viz, index) => {
             return <Section key={index} data={this.state.data} content={viz} animationObserver={this.state.animationObserver}/>
           })}
+          <div className="end-note-wrap">
+            <p className="end-note animate parent blur">{mainContent.endNote}</p>
+          </div>
+          <div className="footer-wrap">
+            <p className="footer-name animate parent blur">CO<sub>2</sub></p>
+            <p className="footer-text animate parent blur">Made by Vu Luong, with ♥</p>
+          </div>
       </div>
     )
   }
