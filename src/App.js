@@ -8,7 +8,7 @@ const styles = {
     background: '#F9F9FA',
   invertedBackground: '#121214',
   dark: '#333334',
-  invertedDark: '#F9F9FA',
+  invertedDark: '#EFEFF1',
   normal: '#555556',
   invertedNormal: '#CCCCCD',
   light: '#888889',
