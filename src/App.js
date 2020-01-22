@@ -5,7 +5,7 @@ import { csv, timeParse } from 'd3';
 import Section from './components/section/Section';
 
 const styles = {
-    background: '#F9F9FA',
+  background: '#F9F9FA',
   invertedBackground: '#121214',
   dark: '#333334',
   invertedDark: '#EFEFF1',
@@ -170,7 +170,7 @@ class App extends Component {
     })
   }
   render() {
-    document.body.style.background = styles.invertedBackground
+    document.body.style.background = styles.background
     return (
       <div
         id="App"
