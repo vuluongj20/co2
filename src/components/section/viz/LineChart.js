@@ -8,8 +8,15 @@ import { select,
   line,
   mouse,
   easeCubic,
-  easeCubicOut
+  easeCubicOut,
+  interpolate,
  } from 'd3';
+
+const mse = [
+  18.2,
+  5.06,
+  0.97
+];
 
 class LineChart extends Component {
   constructor(props) {
@@ -173,7 +180,7 @@ class LineChart extends Component {
                   )
                   .attr('stroke-width', strokeWidth),
                   // Mouse hover line
-                  hoverLine = svg.append('path')
+                  hoverLine = svg.insert('path', '.data-line')
                     .attr('class', 'hover-line')
                     .attr('stroke-width', strokeWidth)
                     .style('opacity', 0)
@@ -185,7 +192,7 @@ class LineChart extends Component {
                     .attr('class', 'hover-data-circle')
                     .attr('r', strokeWidth*2)
                     .attr('transform', 'translate(-5 -5)'),
-                  hoverGroup = svg.insert('g', '.hover-line')
+                  hoverGroup = svg.append('g')
                     .attr('class', 'hover-text-group')
                     .attr('transform', 'translate(' + (margin.left + 24) + ' ' + (margin.top + 24) + ')')
                     .style('opacity', 0),
@@ -246,11 +253,11 @@ class LineChart extends Component {
                       .duration(200)
                       .ease(easeCubic)
                       .style('opacity', 1)
-                    select('.hover-reg-circle').transition()
+                    grandDaddy.select('.hover-reg-circle').transition()
                       .duration(200)
                       .ease(easeCubic)
                       .style('opacity', 1)
-                    select('.hover-diff-line').transition()
+                    grandDaddy.select('.hover-diff-line').transition()
                       .duration(200)
                       .ease(easeCubic)
                       .style('opacity', 1)
@@ -294,7 +301,7 @@ class LineChart extends Component {
                     .y(function(d, i) {return y(yReg[i]) + margin.top })
                   )
                   .attr('stroke-width', strokeWidth),
-                regLineLabel = svg.insert('g', '.hover-line')
+                regLineLabel = svg.append('g')
                   .attr('class', 'reg-line-label')
                   .attr('transform',
                     'translate('
@@ -326,21 +333,24 @@ class LineChart extends Component {
                     .text('Squared error:'),
                   hoverDiffText = hoverGroupSelection.append('text')
                     .attr('class', 'hover-diff-text'),
-                  mseGroup = svg.insert('g', '.hover-line')
+                  mseGroup = svg.append('g')
                     .attr('class', 'mse-group')
-
-                mseGroup.append('text')
-                  .attr('class', 'mse-label')
-                  .text('MSE:')
-
-                mseGroup.append('text')
-                  .attr('class', 'mse-text')
-                  .text(0)
+                    .attr('transform',
+                      'translate('
+                      + (width > 540 ?
+                        (innerWidth + margin.left - 80)
+                        : (innerWidth + margin.left - 60))
+                      + ', '
+                      + (width > 540 ?
+                        (innerHeight + margin.top - 24)
+                        : (innerHeight + margin.top - 12))
+                      + ')'
+                    )
 
                 grandDaddy.select('.bottom-axis').raise()
                 regLineLabel.style('opacity', 0)
                   .transition()
-                    .duration(720)
+                    .duration(600)
                     .ease(easeCubic)
                     .style('opacity', 1)
                 regLineLabel.append('rect')
@@ -370,6 +380,23 @@ class LineChart extends Component {
                     }
                   })
 
+                mseGroup.append('text')
+                  .attr('class', 'mse-label')
+                  .text('MSE:')
+
+                mseGroup.append('text')
+                  .attr('class', 'mse-text')
+                  .text(0)
+                  .transition()
+                    .duration(600)
+                    .ease(easeCubicOut)
+                    .tween('text', function() {
+                      let i = interpolate(0, mse[0])
+                      return function(t) {
+                        select(this).text(i(t).toFixed(2))
+                      }
+                    })
+
                 hoverRegFunction = function() {
                   let hoverY = this.closestDatumIndex > 0 ? y(yReg[this.closestDatumIndex]) + margin.top : -10,
                     squaredError = this.closestDatumIndex > 0 ?
@@ -390,14 +417,6 @@ class LineChart extends Component {
                 }
                 grandDaddy.select('.hover-data-circle').node().classList.add('out')
                 grandDaddy.select('.hover-data-text').node().classList.add('out')
-
-                svg.node()
-                  .addEventListener('mouseover', function() {
-                    hoverDiffLine.style('opacity', 1)
-                  })
-                svg.node().addEventListener('mouseleave', function() {
-                    hoverDiffLine.style('opacity', 0)
-                  })
                 svg.node().addEventListener('mousemove', hoverRegFunction)
                 svg.node().dispatchEvent(new MouseEvent('mousemove'))
                 break
@@ -432,6 +451,16 @@ class LineChart extends Component {
                     let currentSpan = select(this)
                     if (!currentSpan.node().classList.contains('off')) {
                       currentSpan.node().classList.add('off')
+                    }
+                  })
+
+                grandDaddy.select('.mse-text').transition()
+                  .duration(600)
+                  .ease(easeCubicOut)
+                  .tween('text', function() {
+                    let i = interpolate(mse[0], mse[1])
+                    return function(t) {
+                      select(this).text(i(t).toFixed(2))
                     }
                   })
 
@@ -499,6 +528,17 @@ class LineChart extends Component {
                       currentSpan.node().classList.add('off')
                     }
                   })
+
+                grandDaddy.select('.mse-text').transition()
+                  .duration(600)
+                  .ease(easeCubicOut)
+                  .tween('text', function() {
+                    let i = interpolate(mse[1], mse[2])
+                    return function(t) {
+                      select(this).text(i(t).toFixed(2))
+                    }
+                  })
+
                 svg.node().removeEventListener('mousemove', hoverRegFunction)
                 hoverRegFunction = function() {
                   let hoverY = this.closestDatumIndex > 0 ? y(yReg[this.closestDatumIndex]) + margin.top : -10,
@@ -572,7 +612,14 @@ class LineChart extends Component {
                     .style('opacity', 0)
                     .remove()
 
+                grandDaddy.select('.mse-group').transition()
+                  .duration(600)
+                  .ease(easeCubicOut)
+                  .style('opacity', 0)
+                  .remove()
+
                 grandDaddy.select('.hover-data-circle').node().classList.remove('out')
+                grandDaddy.select('.hover-data-text').node().classList.remove('out')
                 grandDaddy.select('.hover-reg-circle').remove()
                 grandDaddy.select('.hover-reg-label').remove()
                 grandDaddy.select('.hover-reg-text').remove()
@@ -607,6 +654,16 @@ class LineChart extends Component {
                   grandDaddy.select('.reg-line-label-rect').attr('class', 'reg-line-label-rect linear')
                 })
                 grandDaddy.select('.reg-line-label-text>.linear.span').attr('class', 'linear span on')
+
+                grandDaddy.select('.mse-text').transition()
+                  .duration(600)
+                  .ease(easeCubicOut)
+                  .tween('text', function() {
+                    let i = interpolate(mse[1], mse[0])
+                    return function(t) {
+                      select(this).text(i(t).toFixed(2))
+                    }
+                  })
 
                 svg.node().removeEventListener('mousemove', hoverRegFunction)
                 hoverRegFunction = function() {
@@ -662,6 +719,17 @@ class LineChart extends Component {
                   grandDaddy.select('.reg-line-label-rect').attr('class', 'reg-line-label-rect quadratic')
                 })
                 grandDaddy.select('.reg-line-label-text>.quadratic.span').attr('class', 'quadratic span on')
+
+                grandDaddy.select('.mse-text').transition()
+                  .duration(600)
+                  .ease(easeCubicOut)
+                  .tween('text', function() {
+                    let i = interpolate(mse[2], mse[1])
+                    return function(t) {
+                      select(this).text(i(t).toFixed(2))
+                    }
+                  })
+
                 svg.node().removeEventListener('mousemove', hoverRegFunction)
                 hoverRegFunction = function() {
                   let hoverY = this.closestDatumIndex > 0 ? y(yReg[this.closestDatumIndex]) + margin.top : -10,

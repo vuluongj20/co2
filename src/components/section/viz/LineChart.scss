@@ -95,7 +95,7 @@
 
   // Hover elements
   .hover-line {
-    stroke: var(--light);
+    stroke: var(--line);
   }
   .hover-data-circle {
     fill: var(--theme);
@@ -143,5 +143,20 @@
   .hover-diff-text {
     fill: var(--error);
     transform: translate(9.1em, 3.6em);
+  }
+
+  // MSE
+  .mse-group {
+    font-size: 1.1em;
+  }
+  .mse-group>text {
+    font-weight: 700;
+  }
+  .mse-label {
+    fill: var(--light);
+  }
+  .mse-text {
+    fill: var(--error);
+    transform: translateX(2.8em);
   }
 }

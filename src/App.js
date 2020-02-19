@@ -44,12 +44,12 @@ vizs = [
     vizContent: [
       {
         state: 'initial',
-        des: 'The original data looks like this.',
+        des: 'The original data looks like this. There is a clear and consistent upward trend through the years.',
         params: null
       },
       {
         state: 'linear',
-        des: 'There is a clear and consistent upward trend through the years.',
+        des: 'A straight line would obviously be a pretty bad fit. The MSE (Mean Squared Error) is quite high.',
         params: [
           306.06644452,
           0.00430901514
@@ -57,7 +57,7 @@ vizs = [
       },
       {
         state: 'quadratic',
-        des: 'But a quadratic trend line would be a better fit.',
+        des: 'A quadratic curve performs much better. The MSE is now one third that of the straight line.',
         params: [
           314.574751,
           0.00210065413,
@@ -66,7 +66,7 @@ vizs = [
       },
       {
         state: 'cosine',
-        des: 'The levels also have a seasonal component. This could be modeled by adding a cosine term to the function.',
+        des: 'Here comes the magic: we can approximate the data by adding a cosine term to the regression function. The MSE is now significantly lower.',
         params: [
           314.569048,
           0.00210632696,
