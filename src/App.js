@@ -14,6 +14,7 @@ const styles = {
   light: '#888889',
   line: '#E6E6E8',
   theme: '#4BA824',
+  error: '#A85224',
   warm: '#EC5F13',
   cool: '#AB13EC'
 },
@@ -184,6 +185,7 @@ class App extends Component {
             '--light': styles.light,
             '--line': styles.line,
             '--theme': styles.theme,
+            '--error': styles.error,
             '--warm': styles.warm,
             '--cool': styles.cool
           }}>

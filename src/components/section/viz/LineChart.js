@@ -6,6 +6,7 @@ import { select,
   min,
   axisBottom, axisRight,
   line,
+  mouse,
   easeCubic,
   easeCubicOut
  } from 'd3';
@@ -151,7 +152,10 @@ class LineChart extends Component {
       updateFunc: (to, from) => {
         let regLineLength = null,
           yReg = null,
-          newText = to !== -1 ? this.vizRef.current.querySelector('.viz-des-text:nth-child(' + (to + 1) + ')') : null
+          newText = to !== -1 ? this.vizRef.current.querySelector('.viz-des-text:nth-child(' + (to + 1) + ')') : null,
+          hoverDataFunction = null,
+          hoverRegFunction = null,
+          hoverOn = false
         if (to > from) {
           if (newText) {
             newText.classList.add('on')
@@ -167,7 +171,29 @@ class LineChart extends Component {
                     .x(function(d) { return x(d.date) + margin.left })
                     .y(function(d) { return y(d.level) + margin.top })
                   )
-                  .attr('stroke-width', strokeWidth)
+                  .attr('stroke-width', strokeWidth),
+                  // Mouse hover line
+                  hoverLine = svg.append('path')
+                    .attr('class', 'hover-line')
+                    .attr('stroke-width', strokeWidth)
+                    .style('opacity', 0)
+                    .attr('d', function() {
+                      return 'M' + 0 + ',' + 0 + ' ' + 0 + ',' + height
+                    }),
+                  // Mouse hover dot
+                  hoverDataCircle = svg.append('circle')
+                    .attr('class', 'hover-data-circle')
+                    .attr('r', strokeWidth*2)
+                    .attr('transform', 'translate(-5 -5)'),
+                  hoverGroup = svg.insert('g', '.hover-line')
+                    .attr('class', 'hover-text-group')
+                    .attr('transform', 'translate(' + (margin.left + 24) + ' ' + (margin.top + 24) + ')')
+                    .style('opacity', 0),
+                  hoverDataLabel = hoverGroup.append('text')
+                    .attr('class', 'hover-data-label')
+                    .text('Ground truth:'),
+                  hoverDataText = hoverGroup.append('text')
+                    .attr('class', 'hover-data-text')
 
                 // Animate data line
                 totalLength = dataLine.node().getTotalLength()
@@ -177,6 +203,86 @@ class LineChart extends Component {
                     .duration(800)
                     .ease(easeCubic)
                     .attr('stroke-dashoffset', 0)
+
+                hoverDataFunction = function() {
+                  let coor = mouse(this),
+                    hoverDate = x.invert(coor[0] - margin.left),
+                    closestDatumIndex = data.findIndex(el => el.date >= hoverDate),
+                    hoverY = closestDatumIndex > 0 ? y(data[closestDatumIndex].level) + margin.top : -10
+
+                  this.coor = coor
+                  this.closestDatumIndex = closestDatumIndex
+                  this.dataHoverY = hoverY
+
+                  hoverLine.attr('transform', 'translate(' + coor[0] + ' ' + 0 + ')')
+                  hoverDataCircle.attr('transform', 'translate(' + coor[0] + ' ' + hoverY + ')')
+                  hoverDataText.text(closestDatumIndex > 0 ?
+                    data[closestDatumIndex].level.toFixed(2) + ' ppm'
+                    : closestDatumIndex === 0 ?
+                      data[0].level.toFixed(2) + ' ppm'
+                      : data[data.length - 1].level.toFixed(2) + ' ppm')
+
+                  if (closestDatumIndex <= 0 && hoverOn) {
+                    hoverOn = false
+                    hoverGroup.transition()
+                      .duration(200)
+                      .ease(easeCubic)
+                      .style('opacity', 0)
+                    hoverLine.transition()
+                      .duration(200)
+                      .ease(easeCubic)
+                      .style('opacity', 0)
+                  } else if (closestDatumIndex > 0 && !hoverOn) {
+                    hoverOn = true
+                    hoverGroup.transition()
+                      .duration(200)
+                      .ease(easeCubic)
+                      .style('opacity', 1)
+                    hoverLine.transition()
+                      .duration(200)
+                      .ease(easeCubic)
+                      .style('opacity', 1)
+                    hoverDataCircle.transition()
+                      .duration(200)
+                      .ease(easeCubic)
+                      .style('opacity', 1)
+                    select('.hover-reg-circle').transition()
+                      .duration(200)
+                      .ease(easeCubic)
+                      .style('opacity', 1)
+                    select('.hover-diff-line').transition()
+                      .duration(200)
+                      .ease(easeCubic)
+                      .style('opacity', 1)
+                  }
+                }
+
+                svg.on('mouseleave', () => {
+                    if (hoverOn) {
+                      hoverOn = false
+                      hoverGroup.transition()
+                        .duration(200)
+                        .ease(easeCubic)
+                        .style('opacity', 0)
+                      hoverLine.transition()
+                        .duration(200)
+                        .ease(easeCubic)
+                        .style('opacity', 0)
+                      hoverDataCircle.transition()
+                        .duration(200)
+                        .ease(easeCubic)
+                        .style('opacity', 0)
+                      select('.hover-reg-circle').transition()
+                        .duration(200)
+                        .ease(easeCubic)
+                        .style('opacity', 0)
+                      select('.hover-diff-line').transition()
+                        .duration(200)
+                        .ease(easeCubic)
+                        .style('opacity', 0)
+                    }
+                  })
+                  .on('mousemove', hoverDataFunction)
                 break
               case 1: // Linear
                 yReg = xDays.map(d => this.props.content[1].params[0] + this.props.content[1].params[1]*d)
@@ -188,7 +294,7 @@ class LineChart extends Component {
                     .y(function(d, i) {return y(yReg[i]) + margin.top })
                   )
                   .attr('stroke-width', strokeWidth),
-                regLineLabel = svg.append('g')
+                regLineLabel = svg.insert('g', '.hover-line')
                   .attr('class', 'reg-line-label')
                   .attr('transform',
                     'translate('
@@ -200,7 +306,37 @@ class LineChart extends Component {
                       (y(yReg[Math.ceil(yReg.length*0.52)]) + margin.top + 20)
                       : (y(yReg[Math.ceil(yReg.length*0.36)]) + margin.top + 20))
                     + ')'
-                  )
+                  ),
+                  hoverRegCircle = svg.append('circle')
+                    .attr('class', 'hover-reg-circle')
+                    .attr('r', strokeWidth*2)
+                    .attr('transform', 'translate(-5 -5)'),
+                  hoverDiffLine = svg.insert('path', '.hover-data-circle')
+                    .attr('class', 'hover-diff-line')
+                    .attr('stroke-width', strokeWidth)
+                    .style('opacity', 0),
+                  hoverGroupSelection = grandDaddy.select('.hover-text-group'),
+                  hoverRegLabel = hoverGroupSelection.append('text')
+                    .attr('class', 'hover-reg-label')
+                    .text('Prediction:'),
+                  hoverRegText = hoverGroupSelection.append('text')
+                    .attr('class', 'hover-reg-text'),
+                  hoverDiffLabel = hoverGroupSelection.append('text')
+                    .attr('class', 'hover-diff-label')
+                    .text('Squared error:'),
+                  hoverDiffText = hoverGroupSelection.append('text')
+                    .attr('class', 'hover-diff-text'),
+                  mseGroup = svg.insert('g', '.hover-line')
+                    .attr('class', 'mse-group')
+
+                mseGroup.append('text')
+                  .attr('class', 'mse-label')
+                  .text('MSE:')
+
+                mseGroup.append('text')
+                  .attr('class', 'mse-text')
+                  .text(0)
+
                 grandDaddy.select('.bottom-axis').raise()
                 regLineLabel.style('opacity', 0)
                   .transition()
@@ -233,6 +369,37 @@ class LineChart extends Component {
                       currentSpan.node().classList.add('off')
                     }
                   })
+
+                hoverRegFunction = function() {
+                  let hoverY = this.closestDatumIndex > 0 ? y(yReg[this.closestDatumIndex]) + margin.top : -10,
+                    squaredError = this.closestDatumIndex > 0 ?
+                      (data[this.closestDatumIndex].level - yReg[this.closestDatumIndex])**2
+                      : this.closestDatumIndex === 0 ?
+                        (data[0].level - yReg[0])**2
+                        : (data[data.length - 1].level - yReg[yReg.length - 1])**2
+
+                  hoverRegCircle.attr('transform', 'translate(' + this.coor[0] + ' ' + hoverY + ')')
+                  hoverRegText.text(this.closestDatumIndex > 0 ?
+                    yReg[this.closestDatumIndex].toFixed(2) + ' ppm'
+                    : this.closestDatumIndex === 0 ?
+                      yReg[0].toFixed(2) + ' ppm'
+                      : yReg[yReg.length - 1].toFixed(2) + ' ppm')
+
+                  hoverDiffLine.attr('d', 'M' + this.coor[0] + ',' + hoverY + ' ' + this.coor[0] + ',' + this.dataHoverY)
+                  hoverDiffText.text(squaredError.toFixed(2))
+                }
+                grandDaddy.select('.hover-data-circle').node().classList.add('out')
+                grandDaddy.select('.hover-data-text').node().classList.add('out')
+
+                svg.node()
+                  .addEventListener('mouseover', function() {
+                    hoverDiffLine.style('opacity', 1)
+                  })
+                svg.node().addEventListener('mouseleave', function() {
+                    hoverDiffLine.style('opacity', 0)
+                  })
+                svg.node().addEventListener('mousemove', hoverRegFunction)
+                svg.node().dispatchEvent(new MouseEvent('mousemove'))
                 break
               case 2: // Quadratic
                 yReg = xDays.map(d => this.props.content[2].params[0] + this.props.content[2].params[1]*d + this.props.content[2].params[2]*d**2)
@@ -267,6 +434,32 @@ class LineChart extends Component {
                       currentSpan.node().classList.add('off')
                     }
                   })
+
+                svg.node().removeEventListener('mousemove', hoverRegFunction)
+                hoverRegFunction = function() {
+                  let hoverY = this.closestDatumIndex > 0 ? y(yReg[this.closestDatumIndex]) + margin.top : -10,
+                    squaredError = this.closestDatumIndex > 0 ?
+                      (data[this.closestDatumIndex].level - yReg[this.closestDatumIndex])**2
+                      : this.closestDatumIndex === 0 ?
+                        (data[0].level - yReg[0])**2
+                        : (data[data.length - 1].level - yReg[yReg.length - 1])**2,
+                    hoverRegCircle = grandDaddy.select('.hover-reg-circle'),
+                    hoverRegText = grandDaddy.select('.hover-reg-text'),
+                    hoverDiffLine = grandDaddy.select('.hover-diff-line'),
+                    hoverDiffText = grandDaddy.select('.hover-diff-text')
+
+                  hoverRegCircle.attr('transform', 'translate(' + this.coor[0] + ' ' + hoverY + ')')
+                  hoverRegText.text(this.closestDatumIndex > 0 ?
+                    yReg[this.closestDatumIndex].toFixed(2) + ' ppm'
+                    : this.closestDatumIndex === 0 ?
+                      yReg[0].toFixed(2) + ' ppm'
+                      : yReg[yReg.length - 1].toFixed(2) + ' ppm')
+
+                  hoverDiffLine.attr('d', 'M' + this.coor[0] + ',' + hoverY + ' ' + this.coor[0] + ',' + this.dataHoverY)
+                  hoverDiffText.text(squaredError.toFixed(2))
+                }
+                svg.node().addEventListener('mousemove', hoverRegFunction)
+                svg.node().dispatchEvent(new MouseEvent('mousemove'))
                 break
               case 3: // Cosine
                 yReg = xDays.map(d => this.props.content[3].params[0]
@@ -306,6 +499,31 @@ class LineChart extends Component {
                       currentSpan.node().classList.add('off')
                     }
                   })
+                svg.node().removeEventListener('mousemove', hoverRegFunction)
+                hoverRegFunction = function() {
+                  let hoverY = this.closestDatumIndex > 0 ? y(yReg[this.closestDatumIndex]) + margin.top : -10,
+                    squaredError = this.closestDatumIndex > 0 ?
+                      (data[this.closestDatumIndex].level - yReg[this.closestDatumIndex])**2
+                      : this.closestDatumIndex === 0 ?
+                        (data[0].level - yReg[0])**2
+                        : (data[data.length - 1].level - yReg[yReg.length - 1])**2,
+                    hoverRegCircle = grandDaddy.select('.hover-reg-circle'),
+                    hoverRegText = grandDaddy.select('.hover-reg-text'),
+                    hoverDiffLine = grandDaddy.select('.hover-diff-line'),
+                    hoverDiffText = grandDaddy.select('.hover-diff-text')
+
+                  hoverRegCircle.attr('transform', 'translate(' + this.coor[0] + ' ' + hoverY + ')')
+                  hoverRegText.text(this.closestDatumIndex > 0 ?
+                    yReg[this.closestDatumIndex].toFixed(2) + ' ppm'
+                    : this.closestDatumIndex === 0 ?
+                      yReg[0].toFixed(2) + ' ppm'
+                      : yReg[yReg.length - 1].toFixed(2) + ' ppm')
+
+                  hoverDiffLine.attr('d', 'M' + this.coor[0] + ',' + hoverY + ' ' + this.coor[0] + ',' + this.dataHoverY)
+                  hoverDiffText.text(squaredError.toFixed(2))
+                }
+                svg.node().addEventListener('mousemove', hoverRegFunction)
+                svg.node().dispatchEvent(new MouseEvent('mousemove'))
                 break
               default:
             }
@@ -332,6 +550,11 @@ class LineChart extends Component {
                     .ease(easeCubicOut)
                     .attr('stroke-dashoffset', -dataLineLength)
                     .remove()
+
+                grandDaddy.select('.hover-line').remove()
+                grandDaddy.select('.hover-data-circle').remove()
+                grandDaddy.select('.hover-text-group').remove()
+                svg.node().removeEventListener('mousemove', hoverRegFunction)
                 break
               case 0: // Initial
                 regLineLength = grandDaddy.select('.reg-line').node().getTotalLength()
@@ -348,6 +571,15 @@ class LineChart extends Component {
                     .ease(easeCubicOut)
                     .style('opacity', 0)
                     .remove()
+
+                grandDaddy.select('.hover-data-circle').node().classList.remove('out')
+                grandDaddy.select('.hover-reg-circle').remove()
+                grandDaddy.select('.hover-reg-label').remove()
+                grandDaddy.select('.hover-reg-text').remove()
+                grandDaddy.select('.hover-diff-line').remove()
+                grandDaddy.select('.hover-diff-label').remove()
+                grandDaddy.select('.hover-diff-text').remove()
+                svg.node().removeEventListener('mousemove', hoverRegFunction)
                 break
               case 1: // Linear
                 yReg = xDays.map(d => this.props.content[1].params[0] + this.props.content[1].params[1]*d)
@@ -375,6 +607,32 @@ class LineChart extends Component {
                   grandDaddy.select('.reg-line-label-rect').attr('class', 'reg-line-label-rect linear')
                 })
                 grandDaddy.select('.reg-line-label-text>.linear.span').attr('class', 'linear span on')
+
+                svg.node().removeEventListener('mousemove', hoverRegFunction)
+                hoverRegFunction = function() {
+                  let hoverY = this.closestDatumIndex > 0 ? y(yReg[this.closestDatumIndex]) + margin.top : -10,
+                    squaredError = this.closestDatumIndex > 0 ?
+                      (data[this.closestDatumIndex].level - yReg[this.closestDatumIndex])**2
+                      : this.closestDatumIndex === 0 ?
+                        (data[0].level - yReg[0])**2
+                        : (data[data.length - 1].level - yReg[yReg.length - 1])**2,
+                    hoverRegCircle = grandDaddy.select('.hover-reg-circle'),
+                    hoverRegText = grandDaddy.select('.hover-reg-text'),
+                    hoverDiffLine = grandDaddy.select('.hover-diff-line'),
+                    hoverDiffText = grandDaddy.select('.hover-diff-text')
+
+                  hoverRegCircle.attr('transform', 'translate(' + this.coor[0] + ' ' + hoverY + ')')
+                  hoverRegText.text(this.closestDatumIndex > 0 ?
+                    yReg[this.closestDatumIndex].toFixed(2) + ' ppm'
+                    : this.closestDatumIndex === 0 ?
+                      yReg[0].toFixed(2) + ' ppm'
+                      : yReg[yReg.length - 1].toFixed(2) + ' ppm')
+
+                  hoverDiffLine.attr('d', 'M' + this.coor[0] + ',' + hoverY + ' ' + this.coor[0] + ',' + this.dataHoverY)
+                  hoverDiffText.text(squaredError.toFixed(2))
+                }
+                svg.node().addEventListener('mousemove', hoverRegFunction)
+                svg.node().dispatchEvent(new MouseEvent('mousemove'))
                 break
               case 2: // Quadratic
                 yReg = xDays.map(d => this.props.content[2].params[0]
@@ -404,6 +662,31 @@ class LineChart extends Component {
                   grandDaddy.select('.reg-line-label-rect').attr('class', 'reg-line-label-rect quadratic')
                 })
                 grandDaddy.select('.reg-line-label-text>.quadratic.span').attr('class', 'quadratic span on')
+                svg.node().removeEventListener('mousemove', hoverRegFunction)
+                hoverRegFunction = function() {
+                  let hoverY = this.closestDatumIndex > 0 ? y(yReg[this.closestDatumIndex]) + margin.top : -10,
+                    squaredError = this.closestDatumIndex > 0 ?
+                      (data[this.closestDatumIndex].level - yReg[this.closestDatumIndex])**2
+                      : this.closestDatumIndex === 0 ?
+                        (data[0].level - yReg[0])**2
+                        : (data[data.length - 1].level - yReg[yReg.length - 1])**2,
+                    hoverRegCircle = grandDaddy.select('.hover-reg-circle'),
+                    hoverRegText = grandDaddy.select('.hover-reg-text'),
+                    hoverDiffLine = grandDaddy.select('.hover-diff-line'),
+                    hoverDiffText = grandDaddy.select('.hover-diff-text')
+
+                  hoverRegCircle.attr('transform', 'translate(' + this.coor[0] + ' ' + hoverY + ')')
+                  hoverRegText.text(this.closestDatumIndex > 0 ?
+                    yReg[this.closestDatumIndex].toFixed(2) + ' ppm'
+                    : this.closestDatumIndex === 0 ?
+                      yReg[0].toFixed(2) + ' ppm'
+                      : yReg[yReg.length - 1].toFixed(2) + ' ppm')
+
+                  hoverDiffLine.attr('d', 'M' + this.coor[0] + ',' + hoverY + ' ' + this.coor[0] + ',' + this.dataHoverY)
+                  hoverDiffText.text(squaredError.toFixed(2))
+                }
+                svg.node().addEventListener('mousemove', hoverRegFunction)
+                svg.node().dispatchEvent(new MouseEvent('mousemove'))
                 break
               default:
             }

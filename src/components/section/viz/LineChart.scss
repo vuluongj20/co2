@@ -4,7 +4,9 @@
 
   .viz-svg-wrap {
     width: calc(80vw - 320px);
+    overflow: hidden;
   }
+
   @media only screen and (max-aspect-ratio: 12/10) {
     .viz-svg-wrap {
       width: 90vw;
@@ -49,7 +51,6 @@
 
   .data-line {
     stroke: var(--dark);
-    // stroke-width: 2;
     stroke-linejoin: round;
     fill: none;
     transition: stroke 600ms cubic-bezier(0.215, 0.61, 0.355, 1);
@@ -89,5 +90,58 @@
   }
   .reg-line-label-rect.cosine {
     width: 15.6em;
+  }
+
+
+  // Hover elements
+  .hover-line {
+    stroke: var(--light);
+  }
+  .hover-data-circle {
+    fill: var(--theme);
+  }
+  .hover-data-circle.out {
+    fill: var(--light);
+  }
+  .hover-text-group {
+    font-size: 0.9em;
+  }
+  .hover-text-group>text {
+    font-weight: 700;
+  }
+
+  .hover-data-label,
+  .hover-reg-label,
+  .hover-diff-label {
+    fill: var(--light);
+  }
+  .hover-data-text {
+    fill: var(--dark);
+    transform: translateX(8.4em);
+  }
+  .hover-data-text.out {
+    fill: var(--light);
+  }
+
+  .hover-reg-circle {
+    fill: var(--theme);
+  }
+  .hover-reg-label {
+    transform: translateY(1.8em);
+  }
+  .hover-reg-text {
+    fill: var(--theme);
+    transform: translate(7.3em, 1.8em);
+  }
+
+  .hover-diff-line {
+   stroke: var(--error);
+  }
+  .hover-diff-label {
+    transform: translateY(3.6em);
+  }
+  .hover-diff-text {
+    fill: var(--error);
+    transform: translate(9.1em, 3.6em);
   }
 }
