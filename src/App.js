@@ -21,7 +21,7 @@ const styles = {
 vizs = [
   {
     key: 'line-chart',
-    height: '500vh',
+    height: '600vh',
     text: {
       header: ['NOT SO LINEAR.', ''],
       des: [
@@ -78,7 +78,7 @@ vizs = [
   },
   {
     key: 'polar-plot',
-    height: '400vh',
+    height: '480vh',
     text: {
       header: ['ROUND AND', 'ROUND WE GO.'],
       des: [
