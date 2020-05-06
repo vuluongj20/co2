@@ -3,26 +3,11 @@
   height: 100%;
 
   .viz-svg-wrap {
-    width: calc(80vw - 320px);
-    max-width: 90vh;
+    width: 85vw;
+    max-width: 85vh;
   }
-  @media only screen and (max-aspect-ratio: 12/10) {
-    .viz-svg-wrap {
-      width: 90vw;
-      max-width: calc(80vh - 90px) !important;
-      max-height: calc(80vh - 90px);
-    }
-  }
-  @media only screen and (min-aspect-ratio: 18/17) and (max-height: 1100px) {
-    .viz-svg-wrap {
-      max-width: 90vh;
-    }
-  }
-  @media only screen and (max-width: 900px) and (min-aspect-ratio: 12/10) {
-    .viz-svg-wrap {
-      max-width: 90vh;
-      width: calc(90vw - 180px);
-    }
+  .viz-scroll-box {
+    right: 0;
   }
   /* Axes */
   .axis .tick, .ticks .tick {
@@ -63,14 +48,14 @@
   }
 
   .stretch {
-    stroke: var(--normal);
+    stroke: var(--light);
   }
   .winter.stretch {
     fill: var(--cool);
-    opacity: 0.2;
+    opacity: 0.4;
   }
   .summer.stretch {
     fill: var(--warm);
-    opacity: 0.2;
+    opacity: 0.4;
   }
 }

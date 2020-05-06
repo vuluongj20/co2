@@ -31,18 +31,14 @@ class Section extends Component {
       <div className="section-wrap" ref={this.sectionRef} style={{height: this.props.content.height}}>
         <div className="section-content-wrap">
           <div className="limit-box">
-            <div className="header limited">
-                {text.header[0] && <h2 className="header-line animate right">{text.header[0]}</h2>}
-                {text.header[1] && <h2 className="header-line animate left">{text.header[1]}</h2>}
-            </div>
             {text.des.map((para, index) => {
               return (
                 <p
                   key={index}
                   className="para limited animate blur"
                   style={{
-                    '--animation-speed': '800ms',
-                    '--animation-delay': '440ms'
+                    '--animation-speed': '1000ms',
+                    '--animation-delay': '0ms'
                 }}>
                   {para.map((segment, index) => {
                     switch(segment.type) {

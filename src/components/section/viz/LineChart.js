@@ -30,16 +30,8 @@ class LineChart extends Component {
     this.vizRef = React.createRef()
   }
   createViz(data) {
-    let width = window.innerWidth/window.innerHeight > 1.2 ?
-        (window.innerWidth > 900 ?
-          Math.min(window.innerWidth*0.8 - 320)
-          : Math.min(window.innerWidth*0.85 - 180))
-        : Math.min(window.innerWidth*0.9),
-      height = window.innerWidth/window.innerHeight > 1.2 ?
-        (window.innerWidth > 900 ?
-          Math.min(window.innerHeight*0.8, width*1.2)
-          : Math.min(window.innerHeight*0.85, width*1.2))
-        : Math.min(window.innerHeight*0.9 - 300, width*1.2),
+    let width = window.innerWidth*0.85,
+      height = Math.min(window.innerHeight*0.85, window.innerWidth*1.2),
       margin = {
         top: 20,
         right: width > 700 ? 60 : 36,
@@ -160,9 +152,10 @@ class LineChart extends Component {
         let regLineLength = null,
           yReg = null,
           newText = to !== -1 ? this.vizRef.current.querySelector('.viz-des-text:nth-child(' + (to + 1) + ')') : null,
-          hoverDataFunction = null,
-          hoverRegFunction = null,
-          hoverOn = false
+          hoverDataFunction,
+          hoverRegFunction,
+          hoverOn = false,
+          lastMouseCoor
         if (to > from) {
           if (newText) {
             newText.classList.add('on')
@@ -196,9 +189,13 @@ class LineChart extends Component {
                     .attr('class', 'hover-text-group')
                     .attr('transform', 'translate(' + (margin.left + 24) + ' ' + (margin.top + 24) + ')')
                     .style('opacity', 0),
+                  hoverRect = hoverGroup.append('rect')
+                    .attr('class', 'hover-rect')
+                    .attr('rx', '8')
+                    .attr('ry', '8'),
                   hoverDataLabel = hoverGroup.append('text')
                     .attr('class', 'hover-data-label')
-                    .text('Ground truth:'),
+                    .text('Record:'),
                   hoverDataText = hoverGroup.append('text')
                     .attr('class', 'hover-data-text')
 
@@ -212,10 +209,12 @@ class LineChart extends Component {
                     .attr('stroke-dashoffset', 0)
 
                 hoverDataFunction = function() {
-                  let coor = mouse(this),
+                  let coor = ((mouse(this)[0] >= 0 && mouse(this)[1] >= 0) || !lastMouseCoor) ? mouse(this) : lastMouseCoor,
                     hoverDate = x.invert(coor[0] - margin.left),
                     closestDatumIndex = data.findIndex(el => el.date >= hoverDate),
                     hoverY = closestDatumIndex > 0 ? y(data[closestDatumIndex].level) + margin.top : -10
+
+                  lastMouseCoor = coor
 
                   this.coor = coor
                   this.closestDatumIndex = closestDatumIndex
@@ -223,11 +222,20 @@ class LineChart extends Component {
 
                   hoverLine.attr('transform', 'translate(' + coor[0] + ' ' + 0 + ')')
                   hoverDataCircle.attr('transform', 'translate(' + coor[0] + ' ' + hoverY + ')')
-                  hoverDataText.text(closestDatumIndex > 0 ?
+                  hoverGroup.select('.hover-data-text').text(closestDatumIndex > 0 ?
                     data[closestDatumIndex].level.toFixed(2) + ' ppm'
                     : closestDatumIndex === 0 ?
                       data[0].level.toFixed(2) + ' ppm'
                       : data[data.length - 1].level.toFixed(2) + ' ppm')
+
+                  if (closestDatumIndex >= 0) {
+                    hoverGroup.attr('transform',
+                      'translate('
+                      + coor[0]
+                      + ' '
+                      + y(314.574751 + 0.00210065413*xDays[closestDatumIndex] + 0.0000000973625567*xDays[closestDatumIndex]**2)
+                      + ')')
+                  }
 
                   if (closestDatumIndex <= 0 && hoverOn) {
                     hoverOn = false
@@ -248,7 +256,7 @@ class LineChart extends Component {
                     hoverLine.transition()
                       .duration(200)
                       .ease(easeCubic)
-                      .style('opacity', 1)
+                      .style('opacity', 0.4)
                     hoverDataCircle.transition()
                       .duration(200)
                       .ease(easeCubic)
@@ -325,7 +333,7 @@ class LineChart extends Component {
                   hoverGroupSelection = grandDaddy.select('.hover-text-group'),
                   hoverRegLabel = hoverGroupSelection.append('text')
                     .attr('class', 'hover-reg-label')
-                    .text('Prediction:'),
+                    .text('Regression:'),
                   hoverRegText = hoverGroupSelection.append('text')
                     .attr('class', 'hover-reg-text'),
                   hoverDiffLabel = hoverGroupSelection.append('text')
@@ -337,33 +345,58 @@ class LineChart extends Component {
                     .attr('class', 'mse-group')
                     .attr('transform',
                       'translate('
-                      + (width > 540 ?
-                        (innerWidth + margin.left - 80)
-                        : (innerWidth + margin.left - 60))
+                      + (width > 768 ?
+                        (innerWidth + margin.left - 300)
+                        : (innerWidth + margin.left - 220))
                       + ', '
-                      + (width > 540 ?
-                        (innerHeight + margin.top - 24)
-                        : (innerHeight + margin.top - 12))
+                      + (width > 768 ?
+                        (innerHeight + margin.top - 100)
+                        : (innerHeight + margin.top - 80))
                       + ')'
                     )
 
-                grandDaddy.select('.bottom-axis').raise()
-                regLineLabel.style('opacity', 0)
+                hoverRegLabel.style('opacity', 0)
                   .transition()
                     .duration(600)
-                    .ease(easeCubic)
+                    .ease(easeCubicOut)
                     .style('opacity', 1)
-                regLineLabel.append('rect')
-                  .attr('class', 'reg-line-label-rect linear')
-                  .attr('stroke-width', strokeWidth/2)
-                  .attr('rx', 4)
-                  .attr('ry', 4)
-                  .style('width', '4.7em')
-                let regLineLabelText = regLineLabel.append('text')
-                    .attr('class', 'reg-line-label-text')
-                regLineLabelText.append('tspan')
-                    .attr('class', 'linear span')
-                    .text('y = αx')
+                hoverRegText.style('opacity', 0)
+                  .transition()
+                    .duration(600)
+                    .ease(easeCubicOut)
+                    .style('opacity', 1)
+                hoverDiffLabel.style('opacity', 0)
+                  .transition()
+                    .duration(600)
+                    .ease(easeCubicOut)
+                    .style('opacity', 1)
+                hoverDiffText.style('opacity', 0)
+                  .transition()
+                    .duration(600)
+                    .ease(easeCubicOut)
+                    .style('opacity', 1)
+
+                hoverGroupSelection.attr('class', 'hover-text-group big')
+                hoverGroupSelection.select('.hover-data-label')
+                  .attr('class', 'hover-data-label big')
+                  .clone(true)
+                  .style('opacity', 0)
+                    .transition()
+                      .duration(600)
+                      .ease(easeCubicOut)
+                      .style('opacity', 1)
+                hoverGroupSelection.select('.hover-data-label').remove()
+                hoverGroupSelection.select('.hover-data-text')
+                  .attr('class', 'hover-data-text big')
+                  .clone(true)
+                  .style('opacity', 0)
+                    .transition()
+                      .duration(600)
+                      .ease(easeCubicOut)
+                      .style('opacity', 1)
+                hoverGroupSelection.select('.hover-data-text').remove()
+
+                grandDaddy.select('.bottom-axis').raise()
                 regLineLength = regLine.node().getTotalLength()
                 regLine.attr("stroke-dasharray", regLineLength + " " + regLineLength)
                   .attr("stroke-dashoffset", regLineLength)
@@ -372,7 +405,7 @@ class LineChart extends Component {
                     .ease(easeCubicOut)
                     .attr('stroke-dashoffset', 0)
                 grandDaddy.select('.data-line').attr('class', 'data-line faded')
-                grandDaddy.selectAll('.reg-line-label-text>tspan:not(.linear)')
+                grandDaddy.selectAll('.mse-equation>tspan:not(.linear)')
                   .each(function(d) {
                     let currentSpan = select(this)
                     if (!currentSpan.node().classList.contains('off')) {
@@ -380,12 +413,38 @@ class LineChart extends Component {
                     }
                   })
 
+                mseGroup.style('opacity', 0)
+                  .transition()
+                    .duration(600)
+                    .ease(easeCubicOut)
+                    .style('opacity', 1)
+
+                mseGroup.append('rect')
+                  .attr('class', 'mse-rect linear')
+                  .attr('stroke-width', strokeWidth/2)
+                  .attr('rx', '8')
+                  .attr('ry', '8')
+
                 mseGroup.append('text')
-                  .attr('class', 'mse-label')
+                  .attr('class', 'mse-title')
+                  .text('Linear regression')
+
+                mseGroup.append('text')
+                    .attr('class', 'mse-equation-label')
+                    .text('Form:')
+
+                let regLineLabelText = mseGroup.append('text')
+                    .attr('class', 'mse-equation')
+                regLineLabelText.append('tspan')
+                    .attr('class', 'linear span')
+                    .text('y = αx')
+
+                mseGroup.append('text')
+                  .attr('class', 'mse-acc-label')
                   .text('MSE:')
 
                 mseGroup.append('text')
-                  .attr('class', 'mse-text')
+                  .attr('class', 'mse-acc-text')
                   .text(0)
                   .transition()
                     .duration(600)
@@ -432,13 +491,11 @@ class LineChart extends Component {
                 regLineLength = grandDaddy.select('.reg-line').node().getTotalLength()
                 grandDaddy.select('.reg-line').attr("stroke-dasharray", 0)
                   .attr('stroke-dashoffset', 0)
-                grandDaddy.select('.reg-line-label-rect')
-                  .attr('class', 'reg-line-label-rect quadratic')
-                  .transition()
-                    .duration(600)
-                    .ease(easeCubicOut)
-                    .style('width', '7.8em')
-                grandDaddy.select('.reg-line-label-text').append('tspan')
+
+                grandDaddy.select('.mse-title').text('Quadratic regression')
+                grandDaddy.select('.mse-rect')
+                  .attr('class', 'mse-rect quadratic')
+                grandDaddy.select('.mse-equation').append('tspan')
                   .attr('class', 'quadratic span')
                   .text(' + βx\u00b2')
                   .style('opacity', 0)
@@ -446,7 +503,7 @@ class LineChart extends Component {
                       .duration(800)
                       .ease(easeCubic)
                       .style('opacity', 1)
-                grandDaddy.selectAll('.reg-line-label-text>tspan:not(.quadratic)')
+                grandDaddy.selectAll('.mse-equation>tspan:not(.quadratic)')
                   .each(function(d) {
                     let currentSpan = select(this)
                     if (!currentSpan.node().classList.contains('off')) {
@@ -454,7 +511,7 @@ class LineChart extends Component {
                     }
                   })
 
-                grandDaddy.select('.mse-text').transition()
+                grandDaddy.select('.mse-acc-text').transition()
                   .duration(600)
                   .ease(easeCubicOut)
                   .tween('text', function() {
@@ -507,13 +564,11 @@ class LineChart extends Component {
                 regLineLength = grandDaddy.select('.reg-line').node().getTotalLength()
                 grandDaddy.select('.reg-line').attr("stroke-dasharray", 0)
                   .attr('stroke-dashoffset', 0)
-                grandDaddy.select('.reg-line-label-rect')
-                  .attr('class', 'reg-line-label-rect cosine')
-                  .transition()
-                    .duration(600)
-                    .ease(easeCubicOut)
-                    .style('width', '15.8em')
-                grandDaddy.select('.reg-line-label-text').append('tspan')
+
+                grandDaddy.select('.mse-title').text('Quadratic regression with cosine term')
+                grandDaddy.select('.mse-rect')
+                  .attr('class', 'mse-rect cosine')
+                grandDaddy.select('.mse-equation').append('tspan')
                   .attr('class', 'cosine span')
                   .text(' + cos(2πt + φ)')
                   .style('opacity', 0)
@@ -521,7 +576,7 @@ class LineChart extends Component {
                       .duration(800)
                       .ease(easeCubic)
                       .style('opacity', 1)
-                grandDaddy.selectAll('.reg-line-label-text>tspan:not(.cosine)')
+                grandDaddy.selectAll('.mse-equation>tspan:not(.cosine)')
                   .each(function(d) {
                     let currentSpan = select(this)
                     if (!currentSpan.node().classList.contains('off')) {
@@ -529,7 +584,7 @@ class LineChart extends Component {
                     }
                   })
 
-                grandDaddy.select('.mse-text').transition()
+                grandDaddy.select('.mse-acc-text').transition()
                   .duration(600)
                   .ease(easeCubicOut)
                   .tween('text', function() {
@@ -612,6 +667,26 @@ class LineChart extends Component {
                     .style('opacity', 0)
                     .remove()
 
+                grandDaddy.select('.hover-text-group').attr('class', 'hover-text-group')
+                grandDaddy.select('.hover-text-group').select('.hover-data-label')
+                  .attr('class', 'hover-data-label')
+                  .clone(true)
+                  .style('opacity', 0)
+                    .transition()
+                      .duration(600)
+                      .ease(easeCubicOut)
+                      .style('opacity', 1)
+                grandDaddy.select('.hover-text-group').select('.hover-data-label').remove()
+                grandDaddy.select('.hover-text-group').select('.hover-data-text')
+                  .attr('class', 'hover-data-text')
+                  .clone(true)
+                  .style('opacity', 0)
+                    .transition()
+                      .duration(600)
+                      .ease(easeCubicOut)
+                      .style('opacity', 1)
+                grandDaddy.select('.hover-text-group').select('.hover-data-text').remove()
+
                 grandDaddy.select('.mse-group').transition()
                   .duration(600)
                   .ease(easeCubicOut)
@@ -639,23 +714,22 @@ class LineChart extends Component {
                 )
                 regLineLength = grandDaddy.select('.reg-line').node().getTotalLength()
                 grandDaddy.select('.reg-line').attr("stroke-dasharray", regLineLength + " " + regLineLength)
-                grandDaddy.select('.reg-line-label-text>.quadratic.span').style('opacity', 1)
+
+                grandDaddy.select('.mse-title').text('Linear regression')
+                grandDaddy.select('.mse-equation>.quadratic.span').style('opacity', 1)
                   .transition()
                     .duration(320)
                     .ease(easeCubicOut)
                     .style('opacity', 0)
                     .remove()
-                grandDaddy.select('.reg-line-label-rect').attr('class', 'reg-line-label-rect linear')
-                  .transition()
-                    .duration(600)
-                    .ease(easeCubicOut)
-                    .style('width', '4.7em')
-                setTimeout(() => {
-                  grandDaddy.select('.reg-line-label-rect').attr('class', 'reg-line-label-rect linear')
-                })
-                grandDaddy.select('.reg-line-label-text>.linear.span').attr('class', 'linear span on')
+                grandDaddy.select('.mse-rect').attr('class', 'mse-rect linear')
 
-                grandDaddy.select('.mse-text').transition()
+                setTimeout(() => {
+                  grandDaddy.select('.mse-rect').attr('class', 'mse-rect linear')
+                })
+                grandDaddy.select('.mse-equation>.linear.span').attr('class', 'linear span on')
+
+                grandDaddy.select('.mse-acc-text').transition()
                   .duration(600)
                   .ease(easeCubicOut)
                   .tween('text', function() {
@@ -704,23 +778,22 @@ class LineChart extends Component {
                 )
                 regLineLength = grandDaddy.select('.reg-line').node().getTotalLength()
                 grandDaddy.select('.reg-line').attr("stroke-dasharray", regLineLength + " " + regLineLength)
-                grandDaddy.select('.reg-line-label-text>.cosine.span').style('opacity', 1)
+
+                grandDaddy.select('.mse-title').text('Quadratic regression')
+                grandDaddy.select('.mse-equation>.cosine.span').style('opacity', 1)
                   .transition()
                     .duration(320)
                     .ease(easeCubicOut)
                     .style('opacity', 0)
                     .remove()
-                grandDaddy.select('.reg-line-label-rect').attr('class', 'reg-line-label-rect quadratic')
-                  .transition()
-                    .duration(600)
-                    .ease(easeCubicOut)
-                    .style('width', '7.8em')
-                setTimeout(() => {
-                  grandDaddy.select('.reg-line-label-rect').attr('class', 'reg-line-label-rect quadratic')
-                })
-                grandDaddy.select('.reg-line-label-text>.quadratic.span').attr('class', 'quadratic span on')
+                grandDaddy.select('.mse-rect').attr('class', 'mse-rect quadratic')
 
-                grandDaddy.select('.mse-text').transition()
+                setTimeout(() => {
+                  grandDaddy.select('.mse-rect').attr('class', 'mse-rect quadratic')
+                })
+                grandDaddy.select('.mse-equation>.quadratic.span').attr('class', 'quadratic span on')
+
+                grandDaddy.select('.mse-acc-text').transition()
                   .duration(600)
                   .ease(easeCubicOut)
                   .tween('text', function() {
@@ -830,36 +903,33 @@ class LineChart extends Component {
         })
       },
       {
+        rootMargin: '-10% 0%',
         threshold: 0
       }
     )
-    document.querySelectorAll('#line-chart .viz-scroll-anchor').forEach(el => {
+    document.querySelectorAll('#line-chart .viz-des-text').forEach(el => {
       vizScrollObserver.observe(el)
     })
   }
   render() {
     return (
       <div id="line-chart" className="viz-outer-wrap" ref={this.vizRef}>
-        <div className="viz-scroll-box">
-          <div className="viz-scroll-anchor" data-index="-1"></div>
-          {this.props.content.map((_, index) => {
-            return (
-              <div className="viz-scroll-anchor" data-index={index} key={index}></div>
-            )
-          })}
-          <div className="viz-scroll-dummy-anchor"></div>
-        </div>
         <div className="viz-wrap">
           <div className="viz-svg-outer-wrap">
             <div className="viz-svg-wrap"></div>
           </div>
+        </div>
+        <div className="viz-scroll-box">
+          <div className="viz-des-text dummy" data-index="-1"></div>
+          <div className="viz-scroll-anchor-top"></div>
           <div className="viz-des-wrap">
             {this.props.content.map((chunk, index) => {
               return (
-                <p className="viz-des-text" key={index}>{chunk.des}</p>
+                <p className="viz-des-text" data-index={index} key={index}>{chunk.des}</p>
               )
             })}
           </div>
+          <div className="viz-scroll-anchor-bottom"></div>
         </div>
       </div>
     )

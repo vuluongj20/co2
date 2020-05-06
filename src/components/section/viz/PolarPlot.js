@@ -23,11 +23,7 @@ class PolarPlot extends Component {
     this.vizRef = React.createRef()
   }
   createViz(data) {
-    let radius = window.innerWidth/window.innerHeight > 1.2 ?
-        (window.innerWidth > 900 ?
-          Math.min(window.innerWidth*0.8 - 320, window.innerHeight*0.9)/2
-          : Math.min(window.innerWidth*0.9 - 180, window.innerHeight*0.9)/2)
-        : Math.min(window.innerWidth*0.9, window.innerHeight*0.8 - 90)/2,
+    let radius = Math.min(window.innerWidth*0.85, window.innerHeight*0.85)/2,
       margin = radius > 280 ? 40 : 20,
       innerRadius = radius - margin,
       grandDaddy = select('#polar-plot'),
@@ -139,7 +135,7 @@ class PolarPlot extends Component {
         .enter()
         .append('text')
         .attr('class', (d) => {return 'r tick' + ((d > 300 && d < 400) ? ' secondary' : '')})
-        .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-Math.PI/12) + ' ' + r(d)*Math.sin(-Math.PI/12) + ')'})
+        .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-11*Math.PI/12) + ' ' + r(d)*Math.sin(-11*Math.PI/12) + ')'})
         .attr('text-anchor', 'middle')
         .attr('alignment-baseline', 'central')
         .text(function (d) {return d})
@@ -233,7 +229,7 @@ class PolarPlot extends Component {
                   .transition()
                     .duration(800)
                     .ease(easeCubicIn)
-                    .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-Math.PI/12) + ' ' + r(d)*Math.sin(-Math.PI/12) + ')'})
+                    .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-11*Math.PI/12) + ' ' + r(d)*Math.sin(-11*Math.PI/12) + ')'})
                 // Add new circles and ticks
                 grandDaddy.selectAll('.grid-circle.secondary').attr('class', 'grid-circle secondary on').transition()
                   .duration(800)
@@ -242,7 +238,7 @@ class PolarPlot extends Component {
                 grandDaddy.selectAll('.r.tick.secondary').attr('class', 'r tick secondary on').transition()
                   .duration(800)
                   .ease(easeCubicIn)
-                  .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-Math.PI/12) + ' ' + r(d)*Math.sin(-Math.PI/12) + ')'})
+                  .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-11*Math.PI/12) + ' ' + r(d)*Math.sin(-11*Math.PI/12) + ')'})
 
                 grandDaddy.select('.data-line')
                 .transition()
@@ -350,7 +346,7 @@ class PolarPlot extends Component {
                   .transition()
                     .duration(800)
                     .ease(easeCubicIn)
-                    .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-Math.PI/12) + ' ' + r(d)*Math.sin(-Math.PI/12) + ')'})
+                    .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-11*Math.PI/12) + ' ' + r(d)*Math.sin(-11*Math.PI/12) + ')'})
                 // Move 400 circle and tick
                 grandDaddy.selectAll('.grid-circle:nth-child(5)').transition()
                   .duration(800)
@@ -360,7 +356,7 @@ class PolarPlot extends Component {
                   .transition()
                     .duration(800)
                     .ease(easeCubicIn)
-                    .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-Math.PI/12) + ' ' + r(d)*Math.sin(-Math.PI/12) + ')'})
+                    .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-11*Math.PI/12) + ' ' + r(d)*Math.sin(-11*Math.PI/12) + ')'})
                 // Add new circles and ticks
                 grandDaddy.selectAll('.grid-circle.secondary').attr('class', 'grid-circle secondary').transition()
                   .duration(800)
@@ -369,7 +365,7 @@ class PolarPlot extends Component {
                 grandDaddy.selectAll('.r.tick.secondary').attr('class', 'r tick secondary').transition()
                   .duration(800)
                   .ease(easeCubicIn)
-                  .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-Math.PI/12) + ' ' + r(d)*Math.sin(-Math.PI/12) + ')'})
+                  .attr('transform', function(d) {return 'translate(' + r(d)*Math.cos(-11*Math.PI/12) + ' ' + r(d)*Math.sin(-11*Math.PI/12) + ')'})
 
                 grandDaddy.select('.data-line')
                 .datum(data.slice(0, 37))
@@ -489,33 +485,29 @@ class PolarPlot extends Component {
         threshold: 0
       }
     )
-    document.querySelectorAll('#polar-plot .viz-scroll-anchor').forEach(el => {
+    document.querySelectorAll('#polar-plot .viz-des-text').forEach(el => {
       vizScrollObserver.observe(el)
     })
   }
   render() {
     return (
       <div id="polar-plot" className="viz-outer-wrap" ref={this.vizRef}>
-        <div className="viz-scroll-box">
-          <div className="viz-scroll-anchor" data-index="-1"></div>
-          {this.props.content.map((_, index) => {
-            return (
-              <div className="viz-scroll-anchor" data-index={index} key={index}></div>
-            )
-          })}
-          <div className="viz-scroll-dummy-anchor"></div>
-        </div>
         <div className="viz-wrap">
-          <div className="viz-des-wrap">
-            {this.props.content.map((chunk, index) => {
-              return (
-                <p className="viz-des-text" key={index}>{chunk.des}</p>
-              )
-            })}
-          </div>
           <div className="viz-svg-outer-wrap">
             <div className="viz-svg-wrap"></div>
           </div>
+        </div>
+        <div className="viz-scroll-box">
+          <div className="viz-des-text dummy" data-index="-1"></div>
+          <div className="viz-scroll-anchor-top"></div>
+          <div className="viz-des-wrap">
+            {this.props.content.map((chunk, index) => {
+              return (
+                <p className="viz-des-text" data-index={index} key={index}>{chunk.des}</p>
+              )
+            })}
+          </div>
+          <div className="viz-scroll-anchor-bottom"></div>
         </div>
       </div>
     )

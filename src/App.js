@@ -5,38 +5,34 @@ import { csv, timeParse } from 'd3';
 import Section from './components/section/Section';
 
 const styles = {
-  background: '#F9F9FA',
-  invertedBackground: '#121214',
-  dark: '#333334',
-  invertedDark: '#EFEFF1',
-  normal: '#555556',
-  invertedNormal: '#CCCCCD',
-  light: '#888889',
-  line: '#E6E6E8',
-  theme: '#4BA824',
-  error: '#A85224',
-  warm: '#EC5F13',
-  cool: '#AB13EC'
+  background: '#0b0b0f',
+  backgroundOpaque: 'rgba(11, 11, 15, 0.3)',
+  dark: '#DDDDDD',
+  normal: '#CCCCCC',
+  light: '#61616b',
+  line: '#1a1a23',
+  lineOpaque: 'rgba(222, 222, 222, 0.05)',
+  theme: '#50c91d',
+  error: '#d77642',
+  warm: '#f07f42',
+  cool: '#bc42f0'
 },
 vizs = [
   {
     key: 'line-chart',
-    height: '600vh',
+    height: '520vh',
     text: {
-      header: ['NOT SO LINEAR.', ''],
       des: [
         [
           {
             type: 'span',
-            content: 'A simple line plot can show us how the CO'
-          },
-          {
-            type: 'sub',
-            content: '2'
-          },
+            content: "Industrialization has led to astonishing economic growth in many countries in the world. At the same time, the ever rising demand in energy has led to more coal and fuel burning, animal farming, and artificial deforestation. All of these activities have resulted in significant increases in atmospheric carbon dioxide and other greenhouse gases. But just how quickly have CO₂ levels increased in the last few decades?"
+          }
+        ],
+        [
           {
             type: 'span',
-            content: ' levels (measured in ppm - parts per million) have changed since the first recordings in 1958. Inference for regression was done with PyStan. A basic linear regression proved insufficient, and slightly more complex terms were added to improve model performance.'
+            content: "The Mauna Loa Observatory in Hawaii has been recording atmospheric CO₂ levels since 1958. The dataset offers great insights into the state of the earth in the past, present, and where it could be in the future."
           }
         ]
       ]
@@ -44,12 +40,12 @@ vizs = [
     vizContent: [
       {
         state: 'initial',
-        des: 'The original data looks like this. There is a clear and consistent upward trend through the years.',
+        des: 'Here is the data in its entirety. CO₂ is measured in ppm (parts-per-million). Hover over the plot for more details.',
         params: null
       },
       {
         state: 'linear',
-        des: 'A straight line would obviously be a pretty bad fit. The MSE (Mean Squared Error) is quite high.',
+        des: 'There is a clear and consistent upward trend through the years. The average increase is +0.4% each year.',
         params: [
           306.06644452,
           0.00430901514
@@ -57,7 +53,7 @@ vizs = [
       },
       {
         state: 'quadratic',
-        des: 'A quadratic curve performs much better. The MSE is now one third that of the straight line.',
+        des: 'In fact, the regression line curves upward. This means that CO₂ levels are not only increasing but also accelerating at an alarming rate.',
         params: [
           314.574751,
           0.00210065413,
@@ -66,7 +62,7 @@ vizs = [
       },
       {
         state: 'cosine',
-        des: 'Here comes the magic: we can approximate the data by adding a cosine term to the regression function. The MSE is now significantly lower.',
+        des: 'There are annual peaks during winter months, when we burn more coal for energy, and plants naturally release more CO₂ when there is less sunlight.',
         params: [
           314.569048,
           0.00210632696,
@@ -78,14 +74,13 @@ vizs = [
   },
   {
     key: 'polar-plot',
-    height: '480vh',
+    height: '440vh',
     text: {
-      header: ['ROUND AND', 'ROUND WE GO.'],
       des: [
         [
           {
             type: 'span',
-            content: "Say hi to polar plots! They're circular plots that use polar coordinate systems. This makes them highly appropriate for time series with recurring patterns."
+            content: "There's another way to look at this. Say hi to polar plots! They're circular plots that use polar coordinate systems. They work great for time series with recurring patterns, like this one."
           }
         ]
       ]
@@ -93,15 +88,15 @@ vizs = [
     vizContent: [
       {
         state: 'one',
-        des: 'Each revolution corresponds to a full year.',
+        des: "Each circle corresponds to a full year. Here's what the data for 1958 looks like.",
       },
       {
         state: 'all',
-        des: 'The whole dataset looks like this. Notice how the rise in CO2 levels is expressed by a consistent trend outward.'
+        des: 'And here is the whole dataset. Notice the gradual trend outward, indicating a yearly increase in CO₂ levels.'
       },
       {
         state: 'stretches',
-        des: 'The circles stretch outward in winter months (blue) and inward in summer months (red), due to the annual seasonal fluctuations we saw above.'
+        des: 'The circles stretch outward in winter months (blue) and inward in summer months (red), due to the yearly cycles we saw above.'
       }
     ]
   }
@@ -109,7 +104,7 @@ vizs = [
 mainContent = {
   meta: [
     {
-      name: 'AUTHOR',
+      name: 'MADE BY',
       content: ['Vu Luong']
     },
     {
@@ -156,6 +151,7 @@ class App extends Component {
             entries.forEach((entry) => {
               if (entry.isIntersecting) {
                 entry.target.classList.add('on')
+                document.querySelector('.hero-arrow-wrap').classList.add('off')
               }
             })
           },
@@ -177,28 +173,41 @@ class App extends Component {
         id="App"
         style={{
             '--background': styles.background,
-            '--inverted-background': styles.invertedBackground,
+            '--background-opaque': styles.backgroundOpaque,
             '--dark': styles.dark,
-            '--inverted-dark': styles.invertedDark,
             '--normal': styles.normal,
-            '--inverted-normal': styles.invertedNormal,
             '--light': styles.light,
             '--line': styles.line,
+            '--line-opaque': styles.lineOpaque,
             '--theme': styles.theme,
             '--error': styles.error,
             '--warm': styles.warm,
             '--cool': styles.cool
           }}>
-          <div className="hero-wrap">
-            <h1 className="hero-text">
-              <span className="hero-span span-1">C</span>
-              <span className="hero-span span-2">O</span>
-              <sub className="hero-span span-3">2</sub>
-            </h1>
-            <p className="hero-des">
-              An exploration into data visualization, with carbon dioxide records from the Mauna Loa Observatory in Hawaii.
-            </p>
+          <div className="label-wrap">
+            <div className="label-line"></div>
+            <p className="label-text">CO₂</p>
+            {/* <div className="label-line"></div> */}
           </div>
+          <div className="hero-wrap">
+            <div className="hero-inner-wrap">
+              <h1 className="hero-text">
+                <span className="hero-span span-1">A look at CO₂ levels</span>
+                <span className="hero-span span-2">in the last few decades</span>
+              </h1>
+            </div>
+            <div className="hero-arrow-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="34" viewBox="0 0 24 24" version="1">
+                <g id="arrow-group">
+                  <path d="M12 5 12 32"></path>
+                  <path d="M3 24 12 32 21 24"></path>
+                </g>
+              </svg>
+            </div>
+          </div>
+          {this.state.data && vizs.map((viz, index) => {
+            return <Section key={index} data={this.state.data} content={viz} animationObserver={this.state.animationObserver}/>
+          })}
           <div className="meta-wrap">
             <div className="meta-inner-wrap limited">
               {mainContent.meta.map((column, index) => {
@@ -215,16 +224,6 @@ class App extends Component {
                 )
               })}
             </div>
-          </div>
-          {this.state.data && vizs.map((viz, index) => {
-            return <Section key={index} data={this.state.data} content={viz} animationObserver={this.state.animationObserver}/>
-          })}
-          <div className="end-note-wrap">
-            <p className="end-note animate parent blur">{mainContent.endNote}</p>
-          </div>
-          <div className="footer-wrap">
-            <p className="footer-name animate parent blur">CO<sub>2</sub></p>
-            <p className="footer-text animate parent blur">Made by Vu Luong, with ♥</p>
           </div>
       </div>
     )

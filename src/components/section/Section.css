@@ -1,8 +1,6 @@
 .section-wrap {
   display: flex;
   flex-direction: column;
-  border-top: 1px solid var(--line);
-
 }
 .section-content-wrap {
   height: auto;
@@ -13,19 +11,6 @@
   padding-right: env(safe-area-inset-right);
   box-sizing: border-box;
 }
-.header-wrap {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.header-line {
-  margin-top: 0;
-  margin-bottom: 0.1em;
-}
-.header-line:last-child {
-  margin-bottom: 0.4em;
-}
 
 /* Common viz styles */
 .viz-wrap {
@@ -34,7 +19,6 @@
   align-items: center;
   position: sticky;
   top: -1px;
-  border-top: solid 1px var(--line);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
 }
@@ -45,93 +29,68 @@
   justify-content: center;
   align-items: center;
 }
-.viz-des-wrap {
-  padding: 0 5vw;
-  height: 100vh;
-  width: calc(300px + 10vw);
-  flex-shrink: 0;
-  position: relative;
-  border-left: solid 1px var(--line);
-  box-sizing: border-box;
-}
 #polar-plot .viz-des-wrap {
   border-left: none;
-  border-right: solid 1px var(--line);
-}
-.viz-des-text {
-  width: 100%;
-  width: 300px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: 0;
-  --animation-speed: 800ms;
-  --animation-delay: 0ms;
-  transform: translate3d(-50%, calc(-50% + 3.2em), 0);
-  opacity: 0;
-  will-change: transform, opacity, filter;
-}
-.viz-des-text.on {
-  animation: opacity var(--animation-speed) var(--animation-delay) var(--ease-out-quart) forwards,
-    blur-light calc(var(--animation-speed)/2) var(--animation-delay) var(--ease-out-quart) forwards,
-    up-center var(--animation-speed) var(--animation-delay) var(--ease-out-quart) forwards;
-}
-.viz-des-text.on-reverse {
-  animation: opacity var(--animation-speed) var(--animation-delay) var(--ease-out-quart) forwards,
-    blur-light calc(var(--animation-speed)/2) var(--animation-delay) var(--ease-out-quart) forwards,
-    down-center var(--animation-speed) var(--animation-delay) var(--ease-out-quart) forwards;
 }
 .viz-scroll-box {
+  height: 100%;
+  margin: 0 7.5%;
   position: absolute;
   top: 0;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+.viz-des-wrap {
   display: flex;
   justify-content: space-between;
   flex-direction: column;
   height: 100%;
-  width: 100%;
+  flex-shrink: 1;
 }
-.viz-scroll-anchor, .viz-scroll-dummy-anchor {
-  width: 0px;
-  height: 0px;
+.viz-scroll-anchor-top {
+  height: 100vh;
+  flex-shrink: 0;
+}
+.viz-scroll-anchor-bottom {
+  height: 100vh;
+  flex-shrink: 0;
+}
+.viz-des-text {
+  display: block;
+  width: 24em;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.8em 1.2em;
+  background: var(--background);
+  border-radius: 0.8em;
+  border: solid 1px var(--line);
+}
+@supports (backdrop-filter: blur(0px)) {
+  .viz-des-text {
+    background: var(--background-opaque);
+    backdrop-filter: saturate(0.5) blur(32px);
+    border: solid 1px var(--line-opaque);
+  }
+}
+.viz-des-text.dummy {
+  visibility: hidden;
 }
 
-@media only screen and (max-aspect-ratio: 12/10) {
-  .viz-wrap {
-    flex-direction: column;
-    justify-content: center;
-  }
-  #polar-plot .viz-wrap {
-    flex-direction: column-reverse;
-    justify-content: center;
-  }
-  .viz-svg-outer-wrap {
-    height: auto;
-  }
-  .viz-des-wrap {
-    height: 6.4em;
-    margin-top: 5vh;
-    width: 100%;
-    padding: 0;
-    border-left: none;
-    border-right: none;
-  }
-  .viz-des-text {
-    width: 85%;
-    max-width: 300px;
-  }
-}
 @media only screen and (max-width: 768px) {
   .section-content-wrap {
     padding: 4em 0;
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
-}
-@media only screen and (max-width: 900px) and (min-aspect-ratio: 12/10) {
+  .viz-scroll-box {
+    width: 85%;
+  }
   .viz-des-wrap {
-    width: calc(180px + 10vw);
+    width: 100%;
+    align-items: center;
   }
   .viz-des-text {
-    width: 180px;
+    width: 20em;
   }
 }
