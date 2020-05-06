@@ -62,7 +62,7 @@ vizs = [
       },
       {
         state: 'cosine',
-        des: 'There are annual peaks during winter months, when we burn more coal for energy, and plants naturally release more CO₂ when there is less sunlight.',
+        des: 'There are yearly peaks during winter months, when we burn more coal for energy, and plants naturally release more CO₂ when there is less sunlight.',
         params: [
           314.569048,
           0.00210632696,
@@ -187,7 +187,6 @@ class App extends Component {
           <div className="label-wrap">
             <div className="label-line"></div>
             <p className="label-text">CO₂</p>
-            {/* <div className="label-line"></div> */}
           </div>
           <div className="hero-wrap">
             <div className="hero-inner-wrap">
