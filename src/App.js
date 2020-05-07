@@ -5,12 +5,12 @@ import { csv, timeParse } from 'd3';
 import Section from './components/section/Section';
 
 const styles = {
-  background: '#0b0b0f',
-  backgroundOpaque: 'rgba(11, 11, 15, 0.3)',
+  background: '#0C0C0D',
+  backgroundOpaque: 'rgba(12, 12, 13, 0.3)',
   dark: '#DDDDDD',
   normal: '#CCCCCC',
-  light: '#61616b',
-  line: '#1a1a23',
+  light: '#61616B',
+  line: '#1D1D20',
   lineOpaque: 'rgba(222, 222, 222, 0.05)',
   theme: '#50c91d',
   error: '#d77642',
@@ -20,7 +20,7 @@ const styles = {
 vizs = [
   {
     key: 'line-chart',
-    height: '520vh',
+    height: '600vh',
     text: {
       des: [
         [

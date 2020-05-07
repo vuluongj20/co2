@@ -347,11 +347,11 @@ class LineChart extends Component {
                       'translate('
                       + (width > 768 ?
                         (innerWidth + margin.left - 300)
-                        : (innerWidth + margin.left - 220))
+                        : (innerWidth + margin.left - 240))
                       + ', '
                       + (width > 768 ?
                         (innerHeight + margin.top - 100)
-                        : (innerHeight + margin.top - 80))
+                        : (innerHeight + margin.top - 86))
                       + ')'
                     )
 

@@ -62,7 +62,7 @@
 
 .label-wrap {
   position: fixed;
-  top: 2.4em;
+  top: 3.2em;
   left: 1.2em;
   transform: translate(-50%, 0) rotate(-90deg);
   display: flex;
@@ -92,7 +92,7 @@
 }
 @supports(padding: max(0px)) {
   .meta-wrap {
-    padding-bottom: max(6em, env(safe-area-inset-bottom));
+    padding-bottom: calc(6em + env(safe-area-inset-bottom));
   }
 }
 .meta-wrap p, .meta-wrap a {
