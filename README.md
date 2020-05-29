@@ -1,5 +1,7 @@
 # CO2
 
+![CO2](feature.jpg)
+
 CO2 is an experiment in data storytelling with React + D3.js. [You can try it out here](https://co2.vuluong.me/).
 
 ## Instructions
