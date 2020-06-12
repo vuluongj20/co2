@@ -13,7 +13,7 @@ body {
 
 
 h1, h2 {
-  font-family: 'Space Grotesk', 'RobAndale Monooto', 'Lucida Sans', sans-serif;
+  font-family: 'Space Grotesk', 'Roboto Mono', 'Andale Mono', 'Lucida Sans', sans-serif;
   font-weight: 700;
   line-height: 1.4;
   margin-bottom: 0;
@@ -24,7 +24,7 @@ h1 {
 }
 p, button, g, text, a, noscript {
   font-size: inherit;
-  font-family: 'Space Grotesk', 'Andale Mono', 'Lucida Sans', monospace;
+  font-family: 'Space Grotesk', 'Roboto Mono', 'Lucida Sans', monospace;
   font-weight: 500;
   letter-spacing: 0.0625em;
   line-height: 1.625;
