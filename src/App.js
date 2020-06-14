@@ -7,8 +7,8 @@ import Section from './components/section/Section';
 const styles = {
   background: '#0D0D0D',
   backgroundOpaque: 'rgba(13, 13, 13, 0.3)',
-  dark: '#DDDDDD',
-  normal: '#CCCCCC',
+  dark: '#DFDFE2',
+  normal: '#CCCCD1',
   light: '#61616B',
   line: '#1D1D20',
   lineOpaque: 'rgba(222, 222, 222, 0.05)',
