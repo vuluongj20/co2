@@ -13,14 +13,14 @@ body {
 
 
 h1, h2 {
-  font-family: 'Space Grotesk', 'Roboto Mono', 'Andale Mono', 'Lucida Sans', sans-serif;
+  font-family: 'Space Mono', 'Roboto Mono', 'Andale Mono', 'Lucida Sans', sans-serif;
   font-weight: 700;
   line-height: 1.4;
   margin-bottom: 0;
   color: var(--dark);
 }
 h1 {
-  font-size: 3.6em;
+  font-size: 3.8em;
 }
 p, button, g, text, a, noscript {
   font-size: inherit;
@@ -94,7 +94,7 @@ svg {
     font-size: 13px;
   }
   h1 {
-    font-size: 3.2em;
+    font-size: 3.3em;
   }
   h2 {
     font-size: 3.2em;
@@ -105,7 +105,7 @@ svg {
     font-size: 12px;
   }
   h1 {
-    font-size: 2em;
+    font-size: 2.4em;
   }
 }
 @font-face {
@@ -120,6 +120,7 @@ svg {
   src: url('/fonts/SpaceGrotesk-Medium.woff2') format('woff2'),
         url('/fonts/SpaceGrotesk-Medium.woff') format('woff');
 }
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&display=swap');
 @keyframes blur {
   from {
     filter: blur(20px);

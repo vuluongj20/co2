@@ -120,6 +120,9 @@
 }
 
 @media only screen and (max-width: 768px) {
+  .hero-text {
+    text-align: left;
+  }
   .meta-wrap {
     padding: 4em 0;
   }

@@ -5,8 +5,8 @@ import { csv, timeParse } from 'd3';
 import Section from './components/section/Section';
 
 const styles = {
-  background: '#0C0C0D',
-  backgroundOpaque: 'rgba(12, 12, 13, 0.3)',
+  background: '#0D0D0D',
+  backgroundOpaque: 'rgba(13, 13, 13, 0.3)',
   dark: '#DDDDDD',
   normal: '#CCCCCC',
   light: '#61616B',
