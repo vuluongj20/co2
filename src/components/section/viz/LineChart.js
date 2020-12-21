@@ -188,15 +188,16 @@ class LineChart extends Component {
                   hoverGroup = svg.append('g')
                     .attr('class', 'hover-text-group')
                     .attr('transform', 'translate(' + (margin.left + 24) + ' ' + (margin.top + 24) + ')')
-                    .style('opacity', 0),
-                  hoverRect = hoverGroup.append('rect')
+                    .style('opacity', 0)
+
+                  hoverGroup.append('rect')
                     .attr('class', 'hover-rect')
                     .attr('rx', '8')
-                    .attr('ry', '8'),
-                  hoverDataLabel = hoverGroup.append('text')
+                    .attr('ry', '8')
+                  hoverGroup.append('text')
                     .attr('class', 'hover-data-label')
-                    .text('Record:'),
-                  hoverDataText = hoverGroup.append('text')
+                    .text('Record:')
+                  hoverGroup.append('text')
                     .attr('class', 'hover-data-text')
 
                 // Animate data line
@@ -309,19 +310,6 @@ class LineChart extends Component {
                     .y(function(d, i) {return y(yReg[i]) + margin.top })
                   )
                   .attr('stroke-width', strokeWidth),
-                regLineLabel = svg.append('g')
-                  .attr('class', 'reg-line-label')
-                  .attr('transform',
-                    'translate('
-                    + (width > 540 ?
-                      (x(data[Math.ceil(data.length*0.52)]['date']) + margin.left + 64)
-                      : (x(data[Math.ceil(data.length*0.36)]['date']) + margin.left + 20))
-                    + ', '
-                    + (width > 540 ?
-                      (y(yReg[Math.ceil(yReg.length*0.52)]) + margin.top + 20)
-                      : (y(yReg[Math.ceil(yReg.length*0.36)]) + margin.top + 20))
-                    + ')'
-                  ),
                   hoverRegCircle = svg.append('circle')
                     .attr('class', 'hover-reg-circle')
                     .attr('r', strokeWidth*2)
@@ -353,7 +341,22 @@ class LineChart extends Component {
                         (innerHeight + margin.top - 100)
                         : (innerHeight + margin.top - 86))
                       + ')'
+
                     )
+                    
+                svg.append('g')
+                  .attr('class', 'reg-line-label')
+                  .attr('transform',
+                    'translate('
+                    + (width > 540 ?
+                      (x(data[Math.ceil(data.length*0.52)]['date']) + margin.left + 64)
+                      : (x(data[Math.ceil(data.length*0.36)]['date']) + margin.left + 20))
+                    + ', '
+                    + (width > 540 ?
+                      (y(yReg[Math.ceil(yReg.length*0.52)]) + margin.top + 20)
+                      : (y(yReg[Math.ceil(yReg.length*0.36)]) + margin.top + 20))
+                    + ')'
+                  )
 
                 hoverRegLabel.style('opacity', 0)
                   .transition()

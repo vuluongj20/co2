@@ -113,12 +113,14 @@ svg {
   font-weight: 700;
   src: url('/fonts/SpaceGrotesk-Bold.woff2') format('woff2'),
         url('/fonts/SpaceGrotesk-Bold.woff') format('woff');
+  font-display: swap;
 }
 @font-face {
   font-family: 'Space Grotesk';
   font-weight: 500;
   src: url('/fonts/SpaceGrotesk-Medium.woff2') format('woff2'),
         url('/fonts/SpaceGrotesk-Medium.woff') format('woff');
+  font-display: swap;
 }
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&display=swap');
 @keyframes blur {
